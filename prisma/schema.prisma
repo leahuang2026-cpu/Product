@@ -1,0 +1,234 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LifeDomain {
+  CAREER
+  WEALTH
+  CAPABILITY
+  SELF
+  LIFE
+}
+
+enum CaptureKind {
+  TEXT
+  AUDIO
+  IMAGE
+  LINK
+}
+
+enum Visibility {
+  PRIVATE
+}
+
+enum IdeaStatus {
+  SEED
+  EXPLORING
+  PAUSED
+  ACTIVE
+}
+
+enum ReflectionCadence {
+  WEEKLY
+  MONTHLY
+}
+
+enum ProposalStatus {
+  PENDING
+  ACCEPTED
+  DISMISSED
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  displayName String?
+  timezone    String   @default("Asia/Shanghai")
+  createdAt   DateTime @default(now())
+  records     CaptureRecord[]
+  goals       Goal[]
+  projects    Project[]
+  ideas       Idea[]
+  reflections Reflection[]
+  tags        Tag[]
+}
+
+// Original content is append-only at the future service layer.
+// User annotations and AI output never overwrite rawText or sourceUrl.
+model CaptureRecord {
+  id         String       @id @default(cuid())
+  ownerId    String
+  owner      User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title      String
+  rawText    String       @db.Text
+  sourceUrl  String?
+  kind       CaptureKind
+  domain     LifeDomain
+  visibility Visibility   @default(PRIVATE)
+  createdAt  DateTime      @default(now())
+  occurredAt DateTime?
+  attachments Attachment[]
+  processing ProcessingResult[]
+  tags       RecordTag[]
+  outgoing   RecordRelation[] @relation("FromRecord")
+  incoming   RecordRelation[] @relation("ToRecord")
+
+  @@unique([id, ownerId])
+  @@index([ownerId, createdAt])
+  @@index([ownerId, domain])
+}
+
+model Attachment {
+  id           String @id @default(cuid())
+  ownerId      String
+  recordId     String
+  record       CaptureRecord @relation(fields: [recordId, ownerId], references: [id, ownerId], onDelete: Cascade)
+  storageKey   String @unique
+  originalName String
+  mimeType     String
+  byteSize     Int
+  sha256       String
+  createdAt    DateTime @default(now())
+  @@index([ownerId, recordId])
+}
+
+// Multiple processing versions preserve provenance; originals remain separate.
+model ProcessingResult {
+  id            String @id @default(cuid())
+  ownerId       String
+  recordId      String
+  record        CaptureRecord @relation(fields: [recordId, ownerId], references: [id, ownerId], onDelete: Cascade)
+  summary       String @db.Text
+  structured    Json?
+  model         String
+  promptVersion String
+  createdAt     DateTime @default(now())
+  @@index([ownerId, recordId, createdAt])
+}
+
+model Tag {
+  id      String @id @default(cuid())
+  ownerId String
+  owner   User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name    String
+  records RecordTag[]
+  @@unique([ownerId, name])
+  @@unique([id, ownerId])
+}
+
+model RecordTag {
+  ownerId  String
+  recordId String
+  tagId    String
+  record   CaptureRecord @relation(fields: [recordId, ownerId], references: [id, ownerId], onDelete: Cascade)
+  tag      Tag @relation(fields: [tagId, ownerId], references: [id, ownerId], onDelete: Cascade)
+  @@id([recordId, tagId])
+  @@index([ownerId, tagId])
+}
+
+model RecordRelation {
+  ownerId String
+  fromId  String
+  toId    String
+  from    CaptureRecord @relation("FromRecord", fields: [fromId, ownerId], references: [id, ownerId], onDelete: Cascade)
+  to      CaptureRecord @relation("ToRecord", fields: [toId, ownerId], references: [id, ownerId], onDelete: Cascade)
+  label   String
+  @@id([fromId, toId])
+  @@index([ownerId, toId])
+}
+
+model Goal {
+  id        String @id @default(cuid())
+  ownerId   String
+  owner     User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title     String
+  why       String @db.Text
+  domain    LifeDomain
+  horizon   String
+  version   Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  projects  Project[]
+  proposals GoalProposal[]
+  @@unique([id, ownerId])
+  @@index([ownerId, domain])
+}
+
+model Project {
+  id        String @id @default(cuid())
+  ownerId   String
+  owner     User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  goalId    String?
+  goal      Goal? @relation(fields: [goalId, ownerId], references: [id, ownerId], onDelete: NoAction)
+  title     String
+  note      String @db.Text
+  domain    LifeDomain
+  archivedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  actions   Action[]
+  @@unique([id, ownerId])
+  @@index([ownerId, goalId])
+}
+
+model Action {
+  id        String @id @default(cuid())
+  ownerId   String
+  projectId String
+  project   Project @relation(fields: [projectId, ownerId], references: [id, ownerId], onDelete: Cascade)
+  title     String
+  done      Boolean @default(false)
+  position  Int @default(0)
+  createdAt DateTime @default(now())
+  @@index([ownerId, projectId])
+}
+
+// No required project/task relation: an idea may remain here indefinitely.
+model Idea {
+  id        String @id @default(cuid())
+  ownerId   String
+  owner     User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title     String
+  body      String @db.Text
+  domain    LifeDomain
+  status    IdeaStatus @default(SEED)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([ownerId, status])
+}
+
+model Reflection {
+  id          String @id @default(cuid())
+  ownerId     String
+  owner       User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  cadence     ReflectionCadence
+  periodStart DateTime @db.Date
+  periodEnd   DateTime @db.Date
+  wins        String @db.Text
+  learning    String @db.Text
+  next        String @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([ownerId, cadence, periodStart])
+}
+
+// Accept only through an authenticated, explicit user decision + DB transaction.
+model GoalProposal {
+  id            String @id @default(cuid())
+  ownerId       String
+  goalId        String
+  goal          Goal @relation(fields: [goalId, ownerId], references: [id, ownerId], onDelete: Cascade)
+  proposedTitle String
+  reason        String @db.Text
+  model         String
+  goalVersion   Int
+  status        ProposalStatus @default(PENDING)
+  createdAt     DateTime @default(now())
+  decidedAt     DateTime?
+  @@index([ownerId, status])
+}
