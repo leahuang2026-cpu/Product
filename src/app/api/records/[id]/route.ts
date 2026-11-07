@@ -22,6 +22,12 @@ export async function GET(_: Request, context: Context) {
       record_id: id,
     });
     dbError(error);
+    if (data?.deletedAt)
+      throw new ApiError(
+        410,
+        "IN_TRASH",
+        "此记录已移入回收站。可在设置的回收站中恢复。",
+      );
     if (!data) throw new ApiError(404, "NOT_FOUND", "找不到可访问的记录。");
     return ok(normalizeRecord(data));
   } catch (e) {
@@ -40,6 +46,14 @@ export async function PATCH(request: Request, context: Context) {
     const key = request.headers.get("Idempotency-Key");
     if (!key || !z.string().uuid().safeParse(key).success)
       throw new ApiError(400, "KEY_REQUIRED", "请求标识无效。");
+    const current = await db.rpc("personal_os_get_record", { record_id: id });
+    dbError(current.error);
+    if (current.data?.deletedAt)
+      throw new ApiError(
+        410,
+        "IN_TRASH",
+        "请先在回收站恢复记录，再编辑说明或领域。",
+      );
     const { data, error } = await db.rpc("personal_os_update_metadata", {
       record_id: id,
       payload: result.data,

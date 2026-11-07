@@ -15,6 +15,18 @@ export function normalizeRecord(row: RecordItem): RecordItem {
 }
 export function dbError(error: { code?: string } | null) {
   if (!error) return;
+  if (error.code === "PT409")
+    throw new ApiError(
+      409,
+      "DIRECTION_LINKED",
+      "此方向仍有关联关注，请先编辑关联关注，解除关联后重试。内容未移动。",
+    );
+  if (error.code === "PT410")
+    throw new ApiError(
+      410,
+      "IN_TRASH",
+      "此内容已移入回收站或关联内容暂不可用。可在设置的回收站中恢复。",
+    );
   if (error.code === "40001" || error.code === "23505")
     throw new ApiError(
       409,

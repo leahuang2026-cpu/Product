@@ -37,6 +37,12 @@ export async function POST(request: Request) {
       payload: result.data,
     });
     dbError(error);
+    if (data?.deletedAt)
+      throw new ApiError(
+        410,
+        "IN_TRASH",
+        "此记录已移入回收站。可在设置中恢复，未重新创建记录。",
+      );
     return ok(normalizeRecord(data as RecordItem), 201);
   } catch (e) {
     return fail(e);

@@ -122,3 +122,19 @@ export function validateImage(file: { type: string; size: number }) {
     return "请选择不超过 10 MB 的有效图片。";
   return null;
 }
+
+export const trashSchema = z
+  .object({
+    id: z.string().uuid(),
+    kind: z.enum(["record", "direction", "reflection"]),
+    version: z.number().int().positive(),
+    deleted: z.boolean(),
+  })
+  .strict();
+export type TrashItem = {
+  id: string;
+  kind: "record" | "direction" | "reflection";
+  title: string;
+  deletedAt: string;
+  version: number;
+};

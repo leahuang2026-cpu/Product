@@ -33,6 +33,12 @@ export async function mockAPI(page: Page) {
       },
     ] as RecordItem[],
     entries: [] as Entry[],
+    trashedRecords: [] as RecordItem[],
+    trashedEntries: [] as Entry[],
+    failTrash: false,
+    trashUnavailable: false,
+    dropTrashResponse: false,
+    trashPosts: [] as { body: string; key: string }[],
     failSave: false,
     failUpload: false,
     failMetadata: false,
@@ -40,6 +46,7 @@ export async function mockAPI(page: Page) {
     dropResponse: false,
     posts: [] as string[],
   };
+  const trashRequests = new Map<string, { body: string; result: unknown }>();
   await page.route("**/api/**", async (route) => {
     const req = route.request(),
       url = new URL(req.url()),
@@ -66,6 +73,88 @@ export async function mockAPI(page: Page) {
       const raw = req.postDataBuffer()?.toString() || "";
       const id = /name="id"\r\n\r\n([a-f0-9-]+)/.exec(raw)?.[1];
       return data({ id });
+    }
+    if (url.pathname === "/api/trash") {
+      if (state.trashUnavailable) return fail("回收站尚未接通，内容未移动。");
+      if (method === "GET")
+        return data([
+          ...state.trashedRecords.map((r) => ({
+            id: r.id,
+            kind: "record",
+            title: r.originalText,
+            deletedAt: "2026-11-08T00:00:00Z",
+            version: r.version,
+          })),
+          ...state.trashedEntries.map((e) => ({
+            id: e.id,
+            kind: e.kind,
+            title: e.title || e.body,
+            deletedAt: "2026-11-08T00:00:00Z",
+            version: e.version,
+          })),
+        ]);
+      const input = req.postDataJSON(),
+        body = req.postData()!,
+        key = req.headers()["idempotency-key"];
+      state.trashPosts.push({ body, key });
+      if (state.failTrash) return fail("服务暂不可用，内容未移动，请重试。");
+      const cached = trashRequests.get(key);
+      if (cached) return data(cached.result);
+      const from: (RecordItem | Entry)[] =
+        input.kind === "record"
+          ? input.deleted
+            ? state.records
+            : state.trashedRecords
+          : input.deleted
+            ? state.entries
+            : state.trashedEntries;
+      const item = from.find((x) => x.id === input.id);
+      if (!item || item.version !== input.version)
+        return route.fulfill({
+          status: 409,
+          json: {
+            error: { code: "CONFLICT", message: "内容已变化，请重新读取。" },
+          },
+        });
+      if (
+        input.deleted &&
+        input.kind === "direction" &&
+        state.entries.some(
+          (e) => e.kind === "focus" && e.relationId === input.id,
+        )
+      )
+        return route.fulfill({
+          status: 409,
+          json: {
+            error: {
+              code: "DIRECTION_LINKED",
+              message:
+                "此方向仍有关联关注，请先编辑关联关注，解除关联后重试。内容未移动。",
+            },
+          },
+        });
+      from.splice(from.indexOf(item), 1);
+      item.version++;
+      if (input.kind === "record")
+        (input.deleted ? state.trashedRecords : state.records).push(
+          item as RecordItem,
+        );
+      else
+        (input.deleted ? state.trashedEntries : state.entries).push(
+          item as Entry,
+        );
+      const result = {
+        id: input.id,
+        kind: input.kind,
+        deleted: input.deleted,
+        version: item.version,
+      };
+      trashRequests.set(key, { body, result });
+      if (state.dropTrashResponse) {
+        state.dropTrashResponse = false;
+        return route.abort("failed");
+      }
+      return data(result);
     }
     if (url.pathname === "/api/entries") {
       if (method === "GET") return data(state.entries);
@@ -118,6 +207,16 @@ export async function mockAPI(page: Page) {
       }
       return data(record);
     }
+    if (state.trashedRecords.some((r) => r.id === id))
+      return route.fulfill({
+        status: 410,
+        json: {
+          error: {
+            code: "IN_TRASH",
+            message: "此记录已移入回收站。可在设置的回收站中恢复。",
+          },
+        },
+      });
     return route.fulfill({
       status: 404,
       json: { error: { message: "记录不可访问。" } },

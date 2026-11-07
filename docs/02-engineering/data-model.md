@@ -1,5 +1,7 @@
 # Personal OS｜数据模型
 
+最新增量：Owner 已批准回收站，records/entries 增加 deleted_at 与 /api/trash 移入/恢复接口；不删除原文附件。数据、权限和兼容细节见[回收站说明](recycle-bin.md)，远端安装尚未确认。
+
 > 用途：区分当前浏览器对象、Prisma 目标模型与尚未建模的需求。
 > 状态：现状已核查；后续方案计划中，产品细则待确认。
 > 更新：2026-11-06（Asia/Shanghai）。

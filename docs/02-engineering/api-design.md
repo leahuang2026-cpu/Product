@@ -1,5 +1,7 @@
 # Personal OS｜API 设计草案
 
+最新增量：Owner 已批准回收站，records/entries 增加 deleted_at 与 /api/trash 移入/恢复接口；不删除原文附件。数据、权限和兼容细节见[回收站说明](recycle-bin.md)，远端安装尚未确认。
+
 当前依据已更新为 UX Sprint 01 确认规则及[实施交付](../05-review/ux-sprint-01-implementation.md)。五模块、多领域、标记灵感、统一采集优先于下文历史方案；真实云端仍待网络与数据契约启用。
 
 > 用途：记录现有调用边界，以及后续服务端接口的候选契约。

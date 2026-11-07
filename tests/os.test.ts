@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   createRecordSchema,
+  trashSchema,
   metadataSchema,
   matchesRecord,
   validateImage,
@@ -125,4 +126,21 @@ test("私有请求来源与身份默认拒绝，附件不能指向外部", () =>
   assert.equal(isOwner("a", "a"), true);
   assert.equal(safeImagePath("https://external.test/image"), false);
   assert.equal(safeImagePath("/api/attachments/123/content"), true);
+});
+
+test("回收站仅允许原记录、方向和复盘，拒绝永久删除、伪造归属与失效版本", () => {
+  const valid = { id: record.id, kind: "record", version: 1, deleted: true };
+  assert.equal(trashSchema.safeParse(valid).success, true);
+  assert.equal(
+    trashSchema.safeParse({ ...valid, deleted: false }).success,
+    true,
+  );
+  for (const extra of [
+    { kind: "focus" },
+    { version: 0 },
+    { permanent: true },
+    { owner_id: "fake" },
+    { deleted: "yes" },
+  ])
+    assert.equal(trashSchema.safeParse({ ...valid, ...extra }).success, false);
 });

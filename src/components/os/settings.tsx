@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useState } from "react";
+import { TrashPanel } from "./trash";
 import { Login } from "./auth";
 import { Notice } from "./common";
 import { parseImport, STORAGE_KEY, type AppState } from "@/lib/domain";
@@ -41,6 +42,7 @@ export function SettingsView() {
         </div>
       </div>
       <Login />
+      <TrashPanel />
       <section className="panel">
         <h2>原有浏览器档案</h2>
         <p>

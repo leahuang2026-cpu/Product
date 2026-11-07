@@ -13,13 +13,23 @@ export async function GET(
       throw new ApiError(404, "NOT_FOUND", "附件不可访问。");
     const { data, error } = await db
       .from("personal_os_attachments")
-      .select("object_key,mime,name")
+      .select("object_key,mime,name,record_id")
       .eq("id", id)
       .eq("owner_id", user.id)
       .not("record_id", "is", null)
       .maybeSingle();
     dbError(error);
     if (!data) throw new ApiError(404, "NOT_FOUND", "附件不可访问。");
+    const parent = await db.rpc("personal_os_get_record", {
+      record_id: data.record_id,
+    });
+    dbError(parent.error);
+    if (!parent.data || parent.data.deletedAt)
+      throw new ApiError(
+        410,
+        "IN_TRASH",
+        "原件所属记录已移入回收站或暂不可用。请先恢复记录。",
+      );
     const result = await db.storage
       .from("personal-os-private")
       .download(data.object_key);

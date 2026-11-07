@@ -303,3 +303,17 @@ DEV-015 Focus/Direction 确认（2026-11-08）：Owner 对此前四步反馈“�
 - 下一步：测试完成后推送已批准测试分支，核对 Render 新版本；若无自动部署，由控制台部署最新提交。不得将推送等同线上修复完成。
 
 DEV-016 验证结果：生产构建、13 项单元、lint、typecheck、四宽度 52 项 Playwright（含新增 4 项周期回归）全部通过；新增测试使用合成 API，未接触用户云端数据。相对链接检查与 diff --check 通过。旧测试文档包含历史用例和原型限制，以 owner-cloud-verification.md 的最新真实反馈为准。接下来推送原测试分支，不改 main；Render 是否部署成功及用户月度复盘复验仍待确认。
+
+## DEV-017｜已批准的回收站实现
+
+- 日期/阶段：2026-11-08（Asia/Shanghai），Owner 批准后实施。
+- 目标：Archive/Direction/Reflection 支持确认移入、集中查看和恢复；不永久删除、自动清理或改变其他内容。
+- 实际完成：records/entries 增量 deleted_at、版本/幂等 RPC、普通列表过滤及详情 tombstone；方向引用触发器与 Owner 级 entry 操作锁；新 /api/trash 本人/同源校验；原图路由检查所属记录；详情/条目移入按钮、设置回收站、来源中性提示、方向手动编辑关联关注（包含已移出当前关注但保留关联的条目）。
+- 主要文件：recycle-bin-v1.sql、verify-recycle-bin-v1.sql、recycle-bin.md；api/trash、记录/附件 API；trash/archive/entries/settings 组件；model/server 错误映射；contract、E2E、单元测试；PRD、AGENTS、状态/TASKS/Roadmap、模型/API/决策及验收文档。
+- 验证：lint、typecheck、生产 build、14 项单元、21 项隔离 PostgreSQL 契约通过；第一轮四宽度 64 项浏览器通过，补充恢复失败/取消/键盘后 12 项回收站复跑结果后补。隔离库验证在已有合成原文/附件/领域/灵感/关联上升级、恢复、权限、直接写表引用保护、六项只读检查、重复安装停止；不连接真实用户数据库。
+- 本地真实接口烟测：GET /api/trash 未登录 401/LOGIN_REQUIRED，同源 POST 未登录 401/LOGIN_REQUIRED，跨源 POST 403/ORIGIN_REJECTED；未发送登录邮件、未写云端数据。
+- 问题与解决：没有 Supabase 管理工具，publishable key 不能执行 DDL；交付事务化增量 SQL，不索要管理密钥。脚本核对旧函数指纹/RLS/原件触发器，有已安装列或未知实现即停止；不重复安装 v2。
+- 遗留：用户真实 Supabase 增量执行、Render 版本与 Owner 复验待完成；真实并发压力、完整镜像安全审计不在本轮测试结论内。现有 Storage 本人权限保持，回收站不是不可恢复擦除。
+- 下一步：验证完成后推送同一测试分支，Owner 在 SQL Editor 执行增量并运行六项只读检查，再用虚构内容验收 TRASH-01～06；无需重复批准已授权的实现范围。
+
+DEV-017 最终补测结果：恢复取消/失败/键盘测试四宽度 12 项通过；随后补齐“查看回收站”导航的未保存说明确认保护，lint/typecheck/build 再次通过，最终 12 项回收站测试（含导航取消保留说明）通过。该定向测试针对后续改动；此前完整 64 项已通过，不重复无关业务全套。Markdown 相对链接和 diff --check 通过。所有 DB 测试为独立 PGlite，所有浏览器为合成 API；真实 Supabase 增量和 Owner 验收未执行。提交/推送到原测试分支，不改 main；推送结果以实际 Git 结果为准，不宣称 Render 已上线。

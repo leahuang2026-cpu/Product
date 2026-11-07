@@ -60,3 +60,7 @@ CI=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run test:e2e
 ## Render 与 Docker
 
 Owner 已选择 Render，复用现有 Supabase。配置、控制台步骤、环境变量和迁移边界见 [Render 部署说明](docs/02-engineering/render-deployment.md)。当前尚无真实 Render 部署或登录验证结果。
+
+## 回收站
+
+Owner 已批准原记录/方向/复盘移入与恢复；不永久删除。需在已有 v2 基础执行一次增量 SQL，详见[回收站安装及验收](docs/02-engineering/recycle-bin.md)。不要重新执行初始建库脚本；数据库未升级时界面会报告回收站尚未接通。

@@ -1,4 +1,5 @@
 "use client";
+import { TrashAction, TrashLink } from "./trash";
 import { useRef, useState } from "react";
 import { useData, useOS } from "./context";
 import { Dialog, DomainPicker, Empty, Notice, Tags } from "./common";
@@ -209,6 +210,7 @@ export function EntriesView({
 }) {
   const { domains, reload } = useOS();
   const { data, error, loading, retry } = useData<Entry[]>("/api/entries");
+  const sources = useData<RecordItem[]>("/api/records");
   const [editing, setEditing] = useState<Entry | "new" | null>(null),
     [issue, setIssue] = useState(""),
     [period, setPeriod] = useState<"weekly" | "monthly">("weekly");
@@ -289,6 +291,7 @@ export function EntriesView({
           </button>
         </div>
       )}
+      {kind !== "focus" && <TrashLink />}
       {issue && <Notice error={issue} />}
       <section className={`entries entries-${kind}`}>
         {loading ? (
@@ -332,12 +335,20 @@ export function EntriesView({
               {entry.sourceIds.length > 0 && (
                 <div className="source-links">
                   <h3>来源记录</h3>
-                  {entry.sourceIds.map((id, n) => (
-                    <a href={`/archive/${id}`} key={id}>
-                      查看来源 {n + 1}
-                      <ArrowUpRight size={14} />
-                    </a>
-                  ))}
+                  {entry.sourceIds.map((id, n) =>
+                    sources.data?.some((r) => r.id === id) ? (
+                      <a href={`/archive/${id}`} key={id}>
+                        查看来源 {n + 1}
+                        <ArrowUpRight size={14} />
+                      </a>
+                    ) : (
+                      <p className="subtle-note" key={id}>
+                        {sources.loading
+                          ? "正在读取来源…"
+                          : `来源 ${n + 1} 已移入回收站或暂不可用；引用关系保留。`}
+                      </p>
+                    ),
+                  )}
                 </div>
               )}
               {kind === "direction" && (
@@ -353,6 +364,21 @@ export function EntriesView({
                   项当前关注引用此方向
                 </p>
               )}
+              {kind === "direction" &&
+                (data || [])
+                  .filter(
+                    (e) => e.kind === "focus" && e.relationId === entry.id,
+                  )
+                  .map((focus) => (
+                    <button
+                      key={focus.id}
+                      className="button quiet"
+                      onClick={() => setEditing(focus)}
+                    >
+                      编辑关联关注：{focus.title || focus.body.slice(0, 30)}
+                      {focus.active ? "" : "（已移出当前关注）"}
+                    </button>
+                  ))}
               <div className="button-row">
                 <button
                   className="button quiet"
@@ -360,6 +386,13 @@ export function EntriesView({
                 >
                   编辑
                 </button>
+                {kind !== "focus" && (
+                  <TrashAction
+                    id={entry.id}
+                    kind={kind}
+                    version={entry.version}
+                  />
+                )}
                 {kind === "focus" && (
                   <button
                     className="button quiet"

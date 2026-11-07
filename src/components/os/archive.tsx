@@ -1,4 +1,5 @@
 "use client";
+import { TrashAction, TrashLink } from "./trash";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -18,12 +19,16 @@ export function RecordDetail({
   record,
   onBack,
   onUpdate,
+  onRemoved,
 }: {
   record: RecordItem;
   onBack?: () => void;
   onUpdate?: (r: RecordItem) => void;
+  onRemoved?: () => void;
 }) {
+  const router = useRouter();
   const { reload, setDirty, navigate } = useOS();
+  const sources = useData<RecordItem[]>("/api/records");
   const [current, setCurrent] = useState(record),
     [selected, setSelected] = useState<Domain[]>(record.domains),
     [note, setNote] = useState(record.note),
@@ -88,9 +93,16 @@ export function RecordDetail({
       </div>
       <Tags values={current.domains} />
       <h2>{titleOf(current)}</h2>
-      {current.sourceId && (
-        <a href={`/archive/${current.sourceId}`}>查看来源记录</a>
-      )}
+      {current.sourceId &&
+        (sources.data?.some((r) => r.id === current.sourceId) ? (
+          <a href={`/archive/${current.sourceId}`}>查看来源记录</a>
+        ) : (
+          <p className="subtle-note">
+            {sources.loading
+              ? "正在读取来源…"
+              : "来源已移入回收站或暂不可用；引用关系保留。"}
+          </p>
+        ))}
       <div className="original-content">
         <h3>原始记录</h3>
         {current.originalText && <p>{current.originalText}</p>}
@@ -169,6 +181,21 @@ export function RecordDetail({
             {current.isIdea ? "取消灵感标记" : "留在灵感库"}
           </button>
         </div>
+        <div className="button-row">
+          <TrashAction
+            id={current.id}
+            kind="record"
+            version={current.version}
+            disabled={dirty || busy}
+            onDone={
+              onRemoved ||
+              (() => {
+                router.push("/archive");
+              })
+            }
+          />
+          <TrashLink />
+        </div>
         {message && <p role="status">{message}</p>}
         {error && <Notice error={error} />}
         <button
@@ -229,6 +256,7 @@ export function ArchiveView({ garden = false }: { garden?: boolean }) {
           记录此刻
         </button>
       </div>
+      <TrashLink />
       <div className={`archive-layout ${selected ? "has-selection" : ""}`}>
         <section className="archive-list">
           <div className="archive-tools">
@@ -338,6 +366,10 @@ export function ArchiveView({ garden = false }: { garden?: boolean }) {
             key={selected.id}
             record={selected}
             onBack={back}
+            onRemoved={() => {
+              setSelected(null);
+              retry();
+            }}
             onUpdate={(r) => {
               setSelected(r);
               setData(
