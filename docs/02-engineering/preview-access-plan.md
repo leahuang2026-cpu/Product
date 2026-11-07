@@ -9,7 +9,7 @@
 - Vercel CLI 65.12.1 已通过 npm 临时工具缓存安装并可运行；项目依赖/锁文件未因工具安装改变。官方 CLI `whoami` 返回 Logged out，无可复用登录。
 - `api.vercel.com`、`vercel.com` 当前代理连接 403。已保存仅追加这两个域名且保留现有 Supabase 的环境网络草稿；当前运行策略尚未应用，未发布配置。
 - 普通 dry-run 因缺凭据退出；`--temporary --dry` 也返回 login_required/temporary unavailable。没有上传或生成临时部署；不能把本地忽略规则检查称为 Vercel 实际上传清单已通过。
-- 下一步由 Owner 在环境设置应用网络草稿，随后重新检查连接，使用 `vercel login` 的浏览器授权流程连接账号；不要在聊天提供 Token/密码。没有账号授权和网络前，不创建资源。
+- Owner 已反馈应用；复查显示草稿已保存，但当前实例仍使用旧域名策略且新连接 403。下一步通过环境设置发布/切换到包含 Vercel 域名的版本，随后重新检查连接，使用 `vercel login` 的浏览器授权流程连接账号；不要在聊天提供 Token/密码。没有账号授权和网络前，不创建资源。
 
 ## 已核实条件
 
