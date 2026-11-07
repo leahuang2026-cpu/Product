@@ -15,11 +15,15 @@ function EntryEditor({
   kind,
   entry,
   entries,
+  defaultCadence,
+  onSaved,
   onClose,
 }: {
   kind: Entry["kind"];
   entry?: Entry;
   entries: Entry[];
+  defaultCadence: "weekly" | "monthly";
+  onSaved: (entry: Entry) => void;
   onClose: () => void;
 }) {
   const { reload, setDirty, navigate } = useOS();
@@ -35,7 +39,7 @@ function EntryEditor({
         relationId: null,
         sourceIds: [],
         active: true,
-        cadence: "weekly",
+        cadence: defaultCadence,
         version: 0,
       },
     ),
@@ -51,12 +55,13 @@ function EntryEditor({
     setError("");
     setBusy(true);
     try {
-      await request<Entry>("/api/entries", {
+      const saved = await request<Entry>("/api/entries", {
         method: "POST",
         headers: { "Idempotency-Key": key.current },
         body: JSON.stringify(value),
       });
       setDirty(false);
+      onSaved(saved);
       reload();
       onClose();
     } catch (e) {
@@ -404,6 +409,11 @@ export function EntriesView({
           kind={editing === "new" ? kind : editing.kind}
           entry={editing === "new" ? undefined : editing}
           entries={data || []}
+          defaultCadence={period}
+          onSaved={(saved) => {
+            if (saved.kind === "reflection" && saved.cadence)
+              setPeriod(saved.cadence);
+          }}
           onClose={() => setEditing(null)}
         />
       )}

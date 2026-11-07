@@ -147,3 +147,55 @@ test("领域跨模块保留，模块搜索条件不会泄漏", async ({ page }) 
   await expect(page.getByRole("textbox", { name: "搜索记录" })).toHaveValue("");
   await expect(page.locator(".idea-note")).toHaveCount(1);
 });
+
+test("复盘新建跟随周月页签，切换周期保存后显示在对应列表，刷新不丢失", async ({
+  page,
+}) => {
+  const api = await mockAPI(page);
+  await page.goto("/reflection");
+  const weekly = page.getByRole("button", { name: "周度复盘", exact: true });
+  const monthly = page.getByRole("button", { name: "月度复盘", exact: true });
+  const write = page.getByRole("button", { name: "写复盘", exact: true });
+  const cards = page.locator(".entry-card");
+  await monthly.click();
+  await write.click();
+  await expect(page.getByLabel("复盘周期")).toHaveValue("monthly");
+  await page.getByLabel("这段时间，想对自己说些什么").fill("虚构月度回望");
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "保存", exact: true })
+    .click();
+  await expect(cards).toContainText("虚构月度回望");
+  expect(api.entries[0].cadence).toBe("monthly");
+  await weekly.click();
+  await expect(cards).toHaveCount(0);
+  await write.click();
+  await expect(page.getByLabel("复盘周期")).toHaveValue("weekly");
+  await page
+    .getByLabel("这段时间，想对自己说些什么")
+    .fill("虚构第二次月度回望");
+  await page.getByLabel("复盘周期").selectOption("monthly");
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "保存", exact: true })
+    .click();
+  await expect(monthly).toHaveAttribute("aria-pressed", "true");
+  await expect(cards).toHaveCount(2);
+  await cards
+    .filter({ hasText: "虚构第二次月度回望" })
+    .getByRole("button", { name: "编辑", exact: true })
+    .click();
+  await expect(page.getByLabel("复盘周期")).toHaveValue("monthly");
+  await page.getByLabel("复盘周期").selectOption("weekly");
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "保存", exact: true })
+    .click();
+  await expect(weekly).toHaveAttribute("aria-pressed", "true");
+  await expect(cards).toHaveCount(1);
+  await page.reload();
+  await expect(cards).toContainText("虚构第二次月度回望");
+  await monthly.click();
+  await expect(cards).toHaveCount(1);
+  await expect(cards).toContainText("虚构月度回望");
+});

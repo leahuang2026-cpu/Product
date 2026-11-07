@@ -41,3 +41,9 @@ docker run --rm --env-file .env.local -e PORT=3000 -p 127.0.0.1:3000:3000 person
 ## 迁移与维护
 
 同一 Dockerfile 可部署自有服务器或其他支持容器的平台。保留同一 Supabase 时不用迁移数据库/附件；变更域名后更新 APP_ORIGIN、认证回调并重新验证。自有服务器另配 HTTPS 反向代理、更新和监控。Supabase 免费/付费额度、独立备份恢复及数据导出仍需后续落实，容器镜像不是用户数据备份。基础 Node 镜像为可更新的主版本标签，正式稳定发布前记录构建摘要并安排安全更新。
+
+## 首次云端部署证据（Owner 截图）
+
+2026-11-07 Owner 提供 Render 控制台截图：提交 d6e27b4，Deploy succeeded / Live，Next.js 监听 0.0.0.0:10000；主地址 https://product-xfca.onrender.com 。此为 Owner 提供的平台证据，未等同工程代理 HTTP 实测。免费实例页面提示空闲休眠后请求可能延迟 50 秒或更久。
+
+代理只读请求在默认沙箱遇 EPERM，外层以同一 URL/默认代理重试得到 Tunnel 403；当前环境未放行该 Render 域名，未取得页面或接口响应，不将其解释为应用故障。环境变量是否齐全、实际回调与本人登录尚未确认。

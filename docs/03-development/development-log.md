@@ -268,3 +268,38 @@ DEV-013 新环境恢复（2026-11-07）：Owner 发布环境并要求继续后�
 - 下一步：完成本地容器烟测并提交原测试分支，再由控制台创建独立测试服务；需要付费时先确认具体套餐和费用。
 
 DEV-014 构建/烟测结果：Docker build 实跑退出 0，镜像 `sha256:895f878ad5e50a2e645f21ed4b63df9a48758d705053b947eb0586375ef19c69`。运行用户 UID 1000；镜像内检查 `.env.local`、`.supabase-setup`、`.git`、docs 和代理 CA secret 路径均不存在（限定路径检查，非完整镜像安全审计）。运行时设 PORT=10000，实际 HTTP `/login` 200 并返回 HTML；`/api/auth/session` 200/configured=false/authenticated=false；`/api/records` 503/NOT_CONFIGURED，未误报保存或放行。烟测没有注入真实配置、没有调用 Supabase、没有产生用户数据。临时容器已移除。RENDER-01 本地构建/启动项通过；RENDER-02～05 真实云端均未执行。
+
+
+DEV-014 云端证据补录（2026-11-07）：Owner 截图显示 Render 服务 srv-dbnj6ve7bikc73cmvrr0 / 部署 dep-dbnj6vu7bikc73cmvt60，提交 d6e27b4，Deploy succeeded / Live，Next.js 监听 10000，主地址 https://product-xfca.onrender.com。仅记录用户提供的平台证据。代理只读访问默认沙箱 EPERM，外层同 URL 重试 Tunnel 403，因此没有取得登录页/接口响应。未调用 Render 管理接口、未读取或改变环境变量、未触发新部署或修改数据库。下一步 Owner 核对五项运行环境及实际 HTTPS Auth 回调，之后本人登录和合成数据联验；此补录保留本地，未推送以避免未知自动部署设置触发发布。
+
+
+## DEV-015｜真实云端本人反馈归档
+
+- 日期/阶段：2026-11-08（Asia/Shanghai），Render 首批用户联验。
+- 目标：记录用户反馈并明确剩余验收范围，不扩大开发。
+- 实际完成：归档本人登录、文字持久化、图片查看、多领域与灵感取消保留的用户确认；创建 OWNER 编号清单，同步状态、任务、Roadmap、验收入口。
+- 主要文件：owner-cloud-verification.md、PROJECT_STATUS、TASKS、Roadmap、acceptance.md、本日志。
+- 验证：本轮只改文档；执行 diff --check 和新增相对链接核对，不重跑业务套件。用户手动反馈不写成代理自动化通过。
+- 问题/方法：反馈末尾“3. 确定”不足以证明跨设备，故 OWNER-06 留待明确验证；图片大小/格式/哈希未知，不推断上限通过。
+- 遗留：跨设备、退出访问保护、第二账户权限、失败恢复、10 MB 图片和依赖审计影响核查。
+- 下一步：先完成 OWNER-06/07，再决定后续实现优先级。未修改业务代码/数据库/权限，未触发部署；文档暂留本地，避免未知自动部署设置触发发布。
+
+
+DEV-015 后续确认（2026-11-08）：Owner 明确确认 OWNER-06 跨设备同账户读取文字/图片/领域、OWNER-07 退出后访问保护及重新登录找回。更新本人联验清单、PROJECT_STATUS、TASKS、Roadmap。仅用户手动验证证据，不外推到第二账户直接接口隔离。下一步按已实现界面验证 Direction 与 Focus 保存、关联、刷新和首页展示。仅改文档，diff --check 通过；不重跑业务测试、未推送、未部署。
+
+
+DEV-015 Focus/Direction 确认（2026-11-08）：Owner 对此前四步反馈“都成功”。新增 OWNER-10～12，分别记录方向及来源、关注关联和下一步及首页/刷新、关注可空关联/下一步。同步状态、TASKS、Roadmap。手写复盘为 OWNER-13 待验证，周/月日期范围不由界面入口推定已实现。仅维护文档，diff --check 通过；未运行新业务测试、未改代码/数据库、未推送或部署。
+
+
+## DEV-016｜周/月复盘默认值与保存后列表同步修复
+
+- 日期/阶段：2026-11-08（Asia/Shanghai），用户联验缺陷 BUG-REF-001。
+- 目标：修复月度页新建默认周度、表单改变周期后列表未跟随的问题。
+- 实际完成：EntryEditor 接收当前列表周期作为新建默认值，编辑优先使用原 entry；成功保存后用 API 返回 cadence 切换列表。无数据库/schema/RLS 修改，不自动改变已保存内容。
+- 主要文件：src/components/os/entries.tsx、tests/e2e/workspace.spec.ts、Bug/本人验收/状态/TASKS/Roadmap/本日志；此前未推送的本人验证文档一并保留。
+- 验证：lint、typecheck 通过。npm test 在默认沙箱因 tsx IPC EPERM 未运行成功；外层重跑 13 项全部通过；生产 build 通过，四宽度 52 项合成 API 浏览器测试执行中，最终结果后补。
+- 问题/方法：原表单将 cadence 固定 weekly，月度页签不影响新建；列表 period 与表单 cadence 各自独立。服务端源码按 payload 保存，未发现强制改周度；未访问用户数据，不推断具体旧记录状态。
+- 遗留：线上部署和 Owner 复验未完成；现有误分类测试记录需 Owner 确认后自行通过编辑调整周期，不批量迁移。
+- 下一步：测试完成后推送已批准测试分支，核对 Render 新版本；若无自动部署，由控制台部署最新提交。不得将推送等同线上修复完成。
+
+DEV-016 验证结果：生产构建、13 项单元、lint、typecheck、四宽度 52 项 Playwright（含新增 4 项周期回归）全部通过；新增测试使用合成 API，未接触用户云端数据。相对链接检查与 diff --check 通过。旧测试文档包含历史用例和原型限制，以 owner-cloud-verification.md 的最新真实反馈为准。接下来推送原测试分支，不改 main；Render 是否部署成功及用户月度复盘复验仍待确认。
