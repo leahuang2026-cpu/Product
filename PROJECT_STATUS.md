@@ -6,7 +6,7 @@
 
 本轮界面与 Supabase 认证/API 代码已实现；真实云端登录、RLS、持久化和跨设备未联验。2026-11-07 Owner 报告数据库已安装；实际远端五表与两个列表 RPC 均拒绝匿名访问（401/42501），安装已出现可验证迹象。登录邮箱配置已按 Owner 最新回复更新；Owner 已反馈七项安装检查全为 true。本地数据开关已启用供本人联验；真实登录、会话权限、原图保存及跨设备仍待验证，未标记产品验收完成。当前进度与实际边界见 [实施交付](docs/05-review/ux-sprint-01-implementation.md)。
 
-当前访问阻塞：Owner 没有 Desktop 入口，现有工具无预览/转发能力；本地 localhost 不能直接交给 Owner 登录。已准备[预览访问方案](docs/02-engineering/preview-access-plan.md)，Owner 已批准新测试分支推送与 Vercel Preview，正在执行；Vercel 网络和账号连接仍待就绪。
+当前访问阻塞：Owner 没有 Desktop 入口，现有工具无预览/转发能力；本地 localhost 不能直接交给 Owner 登录。已准备[预览访问方案](docs/02-engineering/preview-access-plan.md)，Owner 已批准新测试分支推送与 Vercel Preview；应用提交 `2a6b9f2` 已推送到 `preview/personal-os-login`，main 未变。Vercel 网络草稿待应用、账号待连接，尚无线上 Preview。
 
 ## 历史：M1-01.1 设计交付状态（2026-11-06）
 

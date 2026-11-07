@@ -15,7 +15,7 @@
 | 数据契约  | 独立内存验证通过；Owner 报告已安装；匿名拒绝通过；Owner 反馈七项全 true，本人会话待验证 |
 | M1-04     | 用户验收和真实云端用例未执行                                                            |
 
-当前已批准 PVIEW：见[预览访问交接](02-engineering/preview-access-plan.md)。Owner 已批准 GitHub 新分支推送与 Vercel Preview，正在执行；不自动部署生产或变更数据库。
+当前已批准 PVIEW：见[预览访问交接](02-engineering/preview-access-plan.md)。Owner 已批准；新分支应用提交 `2a6b9f2` 已推送，Vercel 网络及账号待就绪；不自动部署生产或变更数据库。
 
 ## 历史：M1-01.1 设计时任务状态（2026-11-06）
 
