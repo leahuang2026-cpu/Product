@@ -1,5 +1,7 @@
 # Personal OS｜长期协作规范
 
+2026-11-07 最新部署决定：Owner 改选 Render，替代 Vercel；Vercel 设备登录已取消。复用新测试分支和标准 Docker/standalone，继续现有 Supabase。不改 main、不自动选择付费套餐、不改数据库或私有权限。当前配置与验收见 [Render 说明](docs/02-engineering/render-deployment.md)。
+
 最新规则以用户 UX Sprint 01 正文和确认记录为准：五模块、多选领域、同记录灵感标记、统一采集、可空 Focus 关联/下一步。新入口在 `src/components/os/`，旧组件只作历史/备份解析。先读[本轮交付](docs/05-review/ux-sprint-01-implementation.md)；2026-11-07 用户已明确批准建立该 SQL 方案的数据库与私有权限基础；无需重复申请批准，但必须检查已有对象并按[安装说明](docs/02-engineering/supabase-setup.md)执行。旧灵感迁移未获授权。新的隔离契约验证命令为 `npm run test:contract`，不会连接用户 Supabase。
 
 2026-11-07 Owner 已明确批准推送到新的测试分支并创建 Vercel Preview；此前“不发布”仅在这一范围内被替代。可以继续完成所需提交、推送、账号连接与预览部署，不重复申请范围批准；不得改 main、部署正式生产、购买资源或公开私人数据。

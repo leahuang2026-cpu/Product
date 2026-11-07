@@ -3,20 +3,24 @@
 用途：在用户没有 Desktop 入口、无法下载工作区压缩包的情况下，为本人登录与保存联验提供可审核的访问路径。
 日期：2026-11-07（Asia/Shanghai）。状态：Owner 已明确回复“批准”，授权新测试分支推送与 Vercel Preview。当前执行中，实际进度见开发日志；main、正式生产、付费及私人数据公开仍不在授权内。
 
+## 最新决定
+
+Owner 已改选 Render；Vercel 设备授权等待已停止，无 Vercel 项目或部署。以下保留为历史执行记录，后续使用 [Render 说明](render-deployment.md)。
+
 ## 当前执行结果
 
 - 应用提交 `2a6b9f2f9741bfdb8bb0632f1641a7a6ff10e3d5` 已推送至 `preview/personal-os-login`；父提交为原 main，未改 main、未强推。
 - Vercel CLI 65.12.1 已通过 npm 临时工具缓存安装并可运行；项目依赖/锁文件未因工具安装改变。官方 CLI `whoami` 返回 Logged out，无可复用登录。
-- `api.vercel.com`、`vercel.com` 当前代理连接 403。已保存仅追加这两个域名且保留现有 Supabase 的环境网络草稿；当前运行策略尚未应用，未发布配置。
+- 上轮 `api.vercel.com`、`vercel.com` 代理连接返回 403，已保存追加域名且保留现有 Supabase 的网络草稿。Owner 随后发布环境，新实例观察为 current/enforced 且含这两个域名，新连接均返回 200。
 - 普通 dry-run 因缺凭据退出；`--temporary --dry` 也返回 login_required/temporary unavailable。没有上传或生成临时部署；不能把本地忽略规则检查称为 Vercel 实际上传清单已通过。
-- Owner 已反馈应用；复查显示草稿已保存，但当前实例仍使用旧域名策略且新连接 403。下一步通过环境设置发布/切换到包含 Vercel 域名的版本，随后重新检查连接，使用 `vercel login` 的浏览器授权流程连接账号；不要在聊天提供 Token/密码。没有账号授权和网络前，不创建资源。
+- Owner 发布环境后网络已通过新连接验证。已启动 `vercel login` 浏览器设备授权，当前等待本人在 Vercel 确认；不要在聊天提供 Token/密码。没有账号授权和网络前，不创建资源。
 
 ## 已核实条件
 
 - 用户明确没有 Desktop 入口；当前工具中没有共享浏览器、打开桌面、预览或端口转发操作。桌面能力虽声明 enabled，状态 unknown，不能据此声称用户可以操作。
 - 本地 Next.js 登录页已运行，数据契约已为本人联验启用；实际匿名读写仍拒绝。Owner 反馈七项数据库安装检查全 true；未取得本人应用会话。
 - 只读查询远程 main 为 `973727fc0a33cec96d0bfc79f47e063b9ffec37f`，共有 11 个文件；源码仅 `src/.gitkeep`，没有可构建应用。这次执行前应用尚未提交；现已进入上述测试分支。
-- 远程读取与测试分支推送已验证。CLI 可用，但没有 Vercel 项目绑定/账号授权，网络草稿未应用。部署条件尚未齐备。
+- 远程读取与测试分支推送已验证。CLI 可用，网络配置已在新实例生效；Vercel 账号授权仍在等待本人确认，尚无项目绑定或部署。
 
 ## 推荐范围：独立预览部署
 

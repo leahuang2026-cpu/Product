@@ -1,0 +1,15 @@
+.git
+.env*
+.supabase-setup
+.vercel
+node_modules
+.next
+out
+coverage
+playwright-report
+test-results
+docs
+tests
+*.log
+*.tsbuildinfo
+.DS_Store

@@ -56,3 +56,7 @@ CI=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run test:e2e
 - `src/app/api/`、`src/app/auth/callback/`：登录、会话、记录、附件、条目接口。
 - 原 `src/components/workspace.tsx`、`store.tsx`、`src/lib/domain.ts` 保留旧实现/备份解析，已不作为新界面的自动写入入口。
 - `docs/`：正式产品入口、工程方案、历史与实际验证证据。
+
+## Render 与 Docker
+
+Owner 已选择 Render，复用现有 Supabase。配置、控制台步骤、环境变量和迁移边界见 [Render 部署说明](docs/02-engineering/render-deployment.md)。当前尚无真实 Render 部署或登录验证结果。

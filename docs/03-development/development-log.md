@@ -251,3 +251,20 @@ DEV-013 执行结果（2026-11-07）：
 - 应用与文档已进入真实测试分支；尚无 Preview URL、Vercel 账号、项目或登录/保存联验结果。本条与状态文档更新会作为后续文档提交推送至同一测试分支，不改 main。
 
 DEV-013 网络应用后复查（2026-11-07）：Owner 回复已应用后，重新读取草稿与当前运行状态，并使用新连接验证。草稿 revision 2 含 Vercel 两域名及原 Supabase；当前运行实例仍引用此前已发布配置，观察为 current/enforced，但显式域名仅有 Supabase。两次服务只读请求仍返回代理 Tunnel 403，未启动账号授权。支持的工具中没有运行时应用或发布操作；未重复保存同一草稿、绕过代理或声称配置生效。下一步需要通过云环境发布/切换流程使已保存配置进入当前实例，之后再检查连接并启动 CLI 登录。此为网络前置阻塞，不需要重新批准 Preview 范围。
+
+
+DEV-013 新环境恢复（2026-11-07）：Owner 发布环境并要求继续后，工作区、测试分支与本地私有配置均保留，未重放旧修改或代码推送。新实例网络观察 current/enforced，包含两个 Vercel 域名；默认沙箱连接本地代理受 EPERM 限制，在批准的外层重试相同请求，两个服务均 HTTP 200。CLI whoami 仍 Logged out，已启动官方浏览器设备授权，凭据目录为 Git 忽略的私有路径；授权码/链接不写入仓库。当前等待本人完成浏览器确认，没有创建项目或部署。未读取/输出 Token、未使用匿名临时部署绕过账号连接。
+
+## DEV-014｜Render 容器部署准备
+
+- 日期/阶段：2026-11-07（Asia/Shanghai），Owner 选择 Render 后的部署准备。
+- 目标：复用现有 Next.js/Supabase，提供可迁移的 Docker 配置；不自动购买套餐或变更数据库。
+- 实际完成：停止 Vercel 设备登录等待；启用 Next.js standalone；添加多阶段、非 root Dockerfile 和构建排除规则；编写 Render 控制台、环境变量、回调、迁移及 RENDER 验收编号说明。
+- 主要文件：Dockerfile、.dockerignore、next.config.ts、render-deployment.md；AGENTS、README、PROJECT_STATUS、TASKS、Roadmap、部署历史、技术决策和本日志同步新平台选择。
+- 验证：lint、typecheck、相对链接检查和 diff --check 均退出 0；本地 Docker 构建进行中，最终结果后补。没有重跑业务交互完整套件，因为未改业务逻辑。
+- 问题：无 Render 账号连接器/管理授权；尚无实际服务或 URL。Docker 安装审计报告 13 项漏洞（8 moderate、5 high），尚未分析具体影响，不自动执行 force 升级。
+- 解决方法：标准容器作为可移植构建入口；真实环境仅在 Render 安全设置输入；Owner 通过控制台连接 GitHub，不在聊天提供管理 Token。
+- 遗留：账号和仓库授权、套餐实时核对、HTTPS origin/回调、真实登录、图片大小限制与跨设备验收。
+- 下一步：完成本地容器烟测并提交原测试分支，再由控制台创建独立测试服务；需要付费时先确认具体套餐和费用。
+
+DEV-014 构建/烟测结果：Docker build 实跑退出 0，镜像 `sha256:895f878ad5e50a2e645f21ed4b63df9a48758d705053b947eb0586375ef19c69`。运行用户 UID 1000；镜像内检查 `.env.local`、`.supabase-setup`、`.git`、docs 和代理 CA secret 路径均不存在（限定路径检查，非完整镜像安全审计）。运行时设 PORT=10000，实际 HTTP `/login` 200 并返回 HTML；`/api/auth/session` 200/configured=false/authenticated=false；`/api/records` 503/NOT_CONFIGURED，未误报保存或放行。烟测没有注入真实配置、没有调用 Supabase、没有产生用户数据。临时容器已移除。RENDER-01 本地构建/启动项通过；RENDER-02～05 真实云端均未执行。

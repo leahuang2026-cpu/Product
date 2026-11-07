@@ -1,5 +1,9 @@
 # Personal OS｜任务清单
 
+## 最新部署决定
+
+2026-11-07 Owner 选择 Render，替代此前 Vercel 路径；Vercel CLI 授权等待已取消。采用可迁移的 Docker + Next.js standalone，现有 Supabase 不变；不创建付费资源、不改 main、不重新安装数据库。见[Render 部署说明](02-engineering/render-deployment.md)。历史 Vercel 记录保留，尚无 Render 线上地址。
+
 ## 当前实施状态：UX Sprint 01
 
 用户最新设计与“确认/继续”已授权界面和接入代码实施：五模块、领域多选、记录灵感标记、统一混合采集；Focus 关联/下一步可空，数量不受主卡限制。上述规则替代下文旧单选/单条 Focus 设计。
@@ -15,7 +19,7 @@
 | 数据契约  | 独立内存验证通过；Owner 报告已安装；匿名拒绝通过；Owner 反馈七项全 true，本人会话待验证 |
 | M1-04     | 用户验收和真实云端用例未执行                                                            |
 
-当前已批准 PVIEW：见[预览访问交接](02-engineering/preview-access-plan.md)。Owner 已批准；新分支应用提交 `2a6b9f2` 已推送，Vercel 网络及账号待就绪；不自动部署生产或变更数据库。
+当前已批准 PVIEW：见[预览访问交接](02-engineering/preview-access-plan.md)。Owner 已批准；新分支应用提交 `2a6b9f2` 已推送，Vercel 网络已验证连通，浏览器账号授权待本人完成；不自动部署生产或变更数据库。
 
 ## 历史：M1-01.1 设计时任务状态（2026-11-06）
 
