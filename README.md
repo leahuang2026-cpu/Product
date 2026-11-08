@@ -2,7 +2,7 @@
 
 过去的沉淀、现在的关注、未来的方向。默认私密的个人知识与人生档案应用。
 
-先读 [PROJECT_STATUS.md](PROJECT_STATUS.md)、[PRD](docs/PRD.md)、[TASKS](docs/TASKS.md)。已实现五模块与 Supabase 私人同步；Owner 已确认指定登录/保存/跨设备/回收站流程，完整边界见[本人联验记录](docs/04-testing/owner-cloud-verification.md)。新完成的云端导出与本地校验尚未远端启用，见[备份实施交接](docs/02-engineering/cloud-backup-export-implementation.md)。
+先读 [PROJECT_STATUS.md](PROJECT_STATUS.md)、[PRD](docs/PRD.md)、[TASKS](docs/TASKS.md)。已实现五模块与 Supabase 私人同步；Owner 已确认指定登录/保存/跨设备/回收站流程，完整边界见[本人联验记录](docs/04-testing/owner-cloud-verification.md)。云端导出与本地校验已发布；新增恢复前只读预检已实现并通过本地测试，发布核查见[预检说明](docs/02-engineering/backup-restore-preview.md)。预检不写入数据，无需新 SQL，实际恢复仍未开放。
 
 ## 本地运行
 

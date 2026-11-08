@@ -1,5 +1,7 @@
 # Personal OS｜长期协作规范
 
+2026-11-08 最新授权：Owner 在 BKP-04 建议后回复“推进”，本轮实现恢复前只读预检：本地完整校验、明确同意发送文字/元数据、本人云端只读对比与冲突预览。复用已安装快照，无需 SQL/权限变更。BKP-05/06 写入、原件上传/覆盖/清理仍非本轮范围。见[预检说明](docs/02-engineering/backup-restore-preview.md)。
+
 2026-11-08 最新：Owner 已反馈 backup-export-v1 安装完成、六项核查全 true。无需重复 SQL 或索取密钥；当前推进已批准的 `preview/personal-os-login` / Render 测试服务更新，main 不改。真实导出与手机保存尚待联验，不能把安装检查等同备份验收。
 
 2026-11-08 Owner 已确认云端备份完整范围（含回收站/原件）、手动未加密 ZIP、相同跳过/缺失补入/冲突停止规则，并批准先实施 BKP-01～03。代码与只读快照 SQL 增量已准备；真实远端未安装、未推送/部署，详见[实施交接](docs/02-engineering/cloud-backup-export-implementation.md)。不要重复申请这些默认规则的确认，也不要把恢复写入 BKP-04～06 或 AI 当作本轮实现范围；不重装基础库、不覆盖原件、不扩大权限。

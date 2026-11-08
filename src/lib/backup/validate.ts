@@ -7,6 +7,7 @@ import {
   parseSnapshot,
   sha256,
   type Summary,
+  type Snapshot,
 } from "./format";
 
 const decoder = new TextDecoder("utf-8", { fatal: true });
@@ -134,7 +135,10 @@ export function readStoredZip(bytes: Uint8Array): Map<string, Uint8Array> {
   ensure(p === end && nextLocal === start, "ZIP 含未声明内容或目录损坏。");
   return files;
 }
-export async function validateBackup(bytes: Uint8Array): Promise<Summary> {
+export type ValidatedBackup = { summary: Summary; snapshot: Snapshot };
+export async function validateBackupDetails(
+  bytes: Uint8Array,
+): Promise<ValidatedBackup> {
   const files = readStoredZip(bytes);
   function json(name: string): unknown {
     const b = files.get(name);
@@ -190,5 +194,9 @@ export async function validateBackup(bytes: Uint8Array): Promise<Summary> {
     ),
     "备份计数与实际内容不一致。",
   );
-  return { snapshotAt: m.snapshotAt, counts: actual };
+  return { summary: { snapshotAt: m.snapshotAt, counts: actual }, snapshot };
+}
+
+export async function validateBackup(bytes: Uint8Array): Promise<Summary> {
+  return (await validateBackupDetails(bytes)).summary;
 }

@@ -1,8 +1,12 @@
 # Personal OS｜项目状态
 
+## 当前任务：BKP-04 只读预检（2026-11-08）
+
+Owner 已明确“推进”恢复前只读预检。复用已安装的备份快照，先本地校验，再经明确发送同意对比新增/相同/冲突/不支持，已实现并通过本地验证（21 项备份测试、14 项旧单元、40 项四宽度浏览器、lint/typecheck/build）；Render 更新待本轮发布核查。无需新 SQL 或权限；BKP-05/06 恢复写入与演练不在本轮。详见[预检实施说明](docs/02-engineering/backup-restore-preview.md)。保留之前安装/发布记录，不将用户简短“确认”扩写成逐项原件哈希或真机验收证据。
+
 ## 备份启用进展（2026-11-08）
 
-Owner 已反馈“完成 全为 true”：backup-export-v1 只读增量安装完成、六项检查全 true。记录为 Owner 操作反馈，代理不重复执行 SQL；不等同实际 ZIP 导出或恢复验收。当前推进已批准测试分支的备份代码发布，Render 新版本状态与真实导出待验证。见[实施交接](docs/02-engineering/cloud-backup-export-implementation.md)。下方“远端未安装/未推送”为上一阶段快照。
+Owner 已反馈“完成 全为 true”：backup-export-v1 只读增量安装完成、六项检查全 true。记录为 Owner 操作反馈，代理不重复执行 SQL；不等同实际 ZIP 导出或恢复验收。备份代码 eba1164 已推送到已批准的 preview/personal-os-login；远端 main 保持 973727f。线上新接口已实测：跨源 403/ORIGIN_REJECTED、同源未登录 401/LOGIN_REQUIRED；设置页 200，公开 JS 包含生成/校验/保存备份入口。更新已在服务地址生效；控制台状态未读取，真实私人导出仍待 Owner 验证。见[实施交接](docs/02-engineering/cloud-backup-export-implementation.md)。下方“远端未安装/未推送”为上一阶段快照。
 
 ## 当前任务：BKP-01～03 已批准并实现，远端待启用（2026-11-08）
 

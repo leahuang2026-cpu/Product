@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { LIMITS, type Summary } from "@/lib/backup/format";
+import { RestorePreview } from "./restore-preview";
+import type { ValidatedBackup } from "@/lib/backup/validate";
+import { LIMITS, type Snapshot, type Summary } from "@/lib/backup/format";
 
 type Job = { abort: AbortController; worker?: Worker; stop?: () => void };
 export function BackupPanel() {
@@ -13,6 +15,7 @@ export function BackupPanel() {
     name: string;
   } | null>(null);
   const [consent, setConsent] = useState(false);
+  const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const job = useRef<Job | null>(null),
     url = useRef<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null),
@@ -35,13 +38,14 @@ export function BackupPanel() {
     revoke();
     setDownload(null);
     setSummary(null);
+    setSnapshot(null);
     setError("");
     setBusy(true);
     const current = { abort: new AbortController() };
     job.current = current;
     return current;
   }
-  async function check(blob: Blob, current: Job): Promise<Summary> {
+  async function check(blob: Blob, current: Job): Promise<ValidatedBackup> {
     if (blob.size > LIMITS.zip) throw new Error("文件超过 64 MiB 校验上限。");
     return new Promise((resolve, reject) => {
       const worker = new Worker(
@@ -55,7 +59,7 @@ export function BackupPanel() {
       worker.onmessage = (event) => {
         worker.terminate();
         if (event.data.error) reject(new Error(event.data.error));
-        else resolve(event.data.summary);
+        else resolve(event.data);
       };
       worker.onerror = () => {
         worker.terminate();
@@ -73,6 +77,7 @@ export function BackupPanel() {
   function failure(e: unknown, current: Job) {
     if (job.current !== current) return;
     setSummary(null);
+    setSnapshot(null);
     setDownload(null);
     revoke();
     setMessage("");
@@ -132,9 +137,10 @@ export function BackupPanel() {
       url.current = URL.createObjectURL(blob);
       setDownload({
         url: url.current,
-        name: `personal-os-backup-${result.snapshotAt.replace(/[:.]/g, "-")}.zip`,
+        name: `personal-os-backup-${result.summary.snapshotAt.replace(/[:.]/g, "-")}.zip`,
       });
-      setSummary(result);
+      setSummary(result.summary);
+      setSnapshot(result.snapshot);
       setMessage("完整性校验通过，请点击保存文件。尚未确认文件已保存到设备。");
     } catch (e) {
       failure(e, current);
@@ -154,7 +160,8 @@ export function BackupPanel() {
     try {
       const result = await check(file, current);
       if (current.abort.signal.aborted || job.current !== current) return;
-      setSummary(result);
+      setSummary(result.summary);
+      setSnapshot(result.snapshot);
       setMessage(
         "所选本地备份完整性校验通过。未验证目标空间恢复，也未写入云端。",
       );
@@ -173,6 +180,7 @@ export function BackupPanel() {
     revoke();
     setDownload(null);
     setSummary(null);
+    setSnapshot(null);
     setBusy(false);
     setError("");
     setMessage("已取消或清除本次文件选择，云端内容未改变。");
@@ -259,8 +267,9 @@ export function BackupPanel() {
           保存备份文件
         </a>
       )}
+      {snapshot && <RestorePreview snapshot={snapshot} />}
       <p>
-        此阶段支持导出与校验。从备份恢复尚未开放；校验通过不等于已验证可恢复。文件下载位置由浏览器决定，离开页面后需重新生成。
+        此阶段支持导出、校验和只读预检。从备份恢复尚未开放；校验通过不等于已验证可恢复。文件下载位置由浏览器决定，离开页面后需重新生成。
       </p>
     </section>
   );

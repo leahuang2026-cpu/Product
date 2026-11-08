@@ -1188,3 +1188,38 @@ figcaption {
   border-radius: 12px;
   padding: 16px;
 }
+
+.restore-preview {
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+}
+.restore-preview > * + * {
+  margin-top: 16px;
+}
+.preview-payload {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 260px;
+  overflow: auto;
+  font-size: 14px;
+  background: var(--surface-subtle);
+  padding: 12px;
+  border-radius: 12px;
+}
+.preview-list {
+  list-style: none;
+  padding: 0;
+}
+.preview-list li {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+.preview-results [aria-pressed="true"] {
+  background: var(--selected-surface);
+}
+
+.restore-preview summary {
+  min-height: 44px;
+  cursor: pointer;
+  padding: 10px 0;
+}

@@ -1,5 +1,9 @@
 # Personal OS｜文档导航与维护规范
 
+## 最新任务：BKP-04 只读预检
+
+Owner 已批准推进，见[实现范围、发送说明与判断规则](02-engineering/backup-restore-preview.md)。不含实际恢复写入，不需重复安装 SQL；测试与发布进展在 DEV-021 记录。
+
 ## 最新交付：BKP-01～03 导出与校验
 
 2026-11-08：默认规则已获确认，代码与只读 SQL 增量已实现。先读[实施交接及远端安装步骤](02-engineering/cloud-backup-export-implementation.md)，再读[实际测试与未验证项](04-testing/cloud-backup-restore-acceptance.md)。没有远端 SQL 安装、源码推送或部署；下方规划入口保留演变记录，不表示仍要重新批准相同规则。

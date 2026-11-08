@@ -2,7 +2,7 @@
 
 ## 最新进展：只读增量已获 Owner 安装确认（2026-11-08）
 
-Owner 明确反馈“完成 全为 true”，对应完整 backup-export-v1 增量和六项只读核查。该证据来自用户，不是代理执行或实际导出成功；无需重装基础库或重复该增量。当前推进 `preview/personal-os-login` 发布，真实下载、原件哈希与手机文件保存待联验，恢复写入仍未实现。
+Owner 明确反馈“完成 全为 true”，对应完整 backup-export-v1 增量和六项只读核查。该证据来自用户，不是代理执行或实际导出成功；无需重装基础库或重复该增量。提交 eba1164 已推送到 `preview/personal-os-login`，main 未改。Render 地址的新备份接口已响应：跨源 403/ORIGIN_REJECTED、同源未登录 401/LOGIN_REQUIRED，设置页 200，公开脚本含生成/本地校验/保存入口。更新已在服务地址生效；没有读取控制台状态或私人记录，真实下载、原件哈希与手机文件保存待联验，恢复写入仍未实现。
 
 发布核查发现 benchmark 脚本引用被 `.dockerignore` 排除的 tests 合成夹具，已将该脚本同步排除出镜像，并排除下载的私人备份 ZIP；本地容量测试仍可运行。最终 Docker 镜像已生成（58ab23e57a8d），应用依赖清单为 fflate 0.8.3；无 Supabase 凭据烟测通过，settings 200、跨源 403、未配置导出 503，且非 root、未包含私人配置或测试文件。DEV-020 记录构建会话句柄失效及实际证据边界。发布前 npm audit 命中新依赖 fflate 0.8.2 的 GHSA-px8p-9vwx-vf98（畸形 ZIP64 导致 unzipSync 循环），已升级补丁 0.8.3；产品本地校验器不调用 unzipSync。原有 Prisma/Zod/ESLint 等依赖告警另列，不执行 audit fix --force。以下“未安装/未推送”保留为实施交接时的历史状态。
 

@@ -1,5 +1,9 @@
 # Personal OS｜决策记录
 
+## 最新确认：BKP-04（2026-11-08）
+
+Owner 明确“推进”恢复前只读预检；实现复用现有快照，文字/元数据经明确同意后只读对比，不上传原件、不改 SQL/权限、不恢复写入。技术取舍见 [DEC-019](03-development/decisions.md) 与[预检规则](02-engineering/backup-restore-preview.md)。BKP-05/06 尚未实施。
+
 ## 最新确认：备份默认规则与 BKP-01～03（2026-11-08）
 
 Owner 已确认完整范围、未加密手动 ZIP、不覆盖恢复合同和分阶段顺序；本轮推进导出与本地校验，不重复申请这些规则确认。DEC-017 已更新决定，DEC-018 记录 STORE 格式、Blob/Worker 与容量边界。新增只读 SQL 仅在隔离环境验证，远端未应用，见[实施交接](02-engineering/cloud-backup-export-implementation.md)。
