@@ -1,5 +1,9 @@
 # Personal OS｜API 设计草案
 
+## 2026-11-08 新增：备份导出（代码已实现，远端待启用）
+
+`POST /api/backups/export`：同源本人会话，固定全量范围；新增 STABLE/invoker `personal_os_backup_snapshot_v1()` 输出受限快照，服务端校验原件后逐文件输出 STORE ZIP。匿名/跨源拒绝，失败不生成完整清单。客户端完整性通过后才提供下载链接；`private, no-store`。无恢复写接口、无 AI 调用、无额外密钥。容量、错误与安装见[实施交接](cloud-backup-export-implementation.md)，只读增量未在远端执行。
+
 最新增量：Owner 已批准回收站，records/entries 增加 deleted_at 与 /api/trash 移入/恢复接口；不删除原文附件。数据、权限和兼容细节见[回收站说明](recycle-bin.md)，远端安装尚未确认。
 
 当前依据已更新为 UX Sprint 01 确认规则及[实施交付](../05-review/ux-sprint-01-implementation.md)。五模块、多领域、标记灵感、统一采集优先于下文历史方案；真实云端仍待网络与数据契约启用。

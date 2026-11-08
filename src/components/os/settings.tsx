@@ -1,11 +1,14 @@
 "use client";
 import Image from "next/image";
 import { useState } from "react";
+import { useOS } from "./context";
+import { BackupPanel } from "./backup";
 import { TrashPanel } from "./trash";
 import { Login } from "./auth";
 import { Notice } from "./common";
 import { parseImport, STORAGE_KEY, type AppState } from "@/lib/domain";
 export function SettingsView() {
+  const { session, sessionError } = useOS();
   const [legacy, setLegacy] = useState<AppState | null>(null),
     [error, setError] = useState("");
   function read() {
@@ -43,6 +46,13 @@ export function SettingsView() {
       </div>
       <Login />
       <TrashPanel />
+      {session || sessionError ? (
+        <BackupPanel
+          key={session?.authenticated ? "signed-in" : "signed-out"}
+        />
+      ) : (
+        <p role="status">正在确认会话，随后可导出或在本机校验备份…</p>
+      )}
       <section className="panel">
         <h2>原有浏览器档案</h2>
         <p>
@@ -98,7 +108,7 @@ export function SettingsView() {
       <section className="panel">
         <h2>同步与导出</h2>
         <p>
-          云端保存以服务端确认和另一设备读回为准。云端导出与恢复尚待实施；旧版备份仅包含此浏览器原有数据。
+          云端保存以服务端确认和另一设备读回为准。云端备份见上方独立入口；旧版备份仅包含此浏览器原有数据。
         </p>
       </section>
     </>

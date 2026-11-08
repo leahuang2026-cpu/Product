@@ -13,3 +13,8 @@ tests
 *.log
 *.tsbuildinfo
 .DS_Store
+
+# Benchmark depends on synthetic fixtures excluded above; not a runtime module.
+scripts/benchmark-backup.ts
+# Never include downloaded private backups in build context.
+personal-os-backup*.zip

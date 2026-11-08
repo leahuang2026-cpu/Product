@@ -1,5 +1,9 @@
 # Personal OS｜长期协作规范
 
+2026-11-08 最新：Owner 已反馈 backup-export-v1 安装完成、六项核查全 true。无需重复 SQL 或索取密钥；当前推进已批准的 `preview/personal-os-login` / Render 测试服务更新，main 不改。真实导出与手机保存尚待联验，不能把安装检查等同备份验收。
+
+2026-11-08 Owner 已确认云端备份完整范围（含回收站/原件）、手动未加密 ZIP、相同跳过/缺失补入/冲突停止规则，并批准先实施 BKP-01～03。代码与只读快照 SQL 增量已准备；真实远端未安装、未推送/部署，详见[实施交接](docs/02-engineering/cloud-backup-export-implementation.md)。不要重复申请这些默认规则的确认，也不要把恢复写入 BKP-04～06 或 AI 当作本轮实现范围；不重装基础库、不覆盖原件、不扩大权限。
+
 2026-11-08 Owner 已批准 Archive/Direction/Reflection 回收站方案及所需增量数据库/权限实现。范围仅移入/查看/恢复、保留原文附件及关联、有 Focus 引用的方向先手动解除关联。不执行永久删除、自动清理、旧数据迁移或自动改目标。增量脚本和安装见 [回收站说明](docs/02-engineering/recycle-bin.md)；无需重复申请该范围批准，远端执行结果必须实记。
 
 2026-11-07 最新部署决定：Owner 改选 Render，替代 Vercel；Vercel 设备登录已取消。复用新测试分支和标准 Docker/standalone，继续现有 Supabase。不改 main、不自动选择付费套餐、不改数据库或私有权限。当前配置与验收见 [Render 说明](docs/02-engineering/render-deployment.md)。

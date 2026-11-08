@@ -19,12 +19,15 @@
     "db:check": "tsx scripts/validate-schema.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test:contract": "tsx --test tests/contract.test.ts tests/trash-contract.test.ts"
+    "test:contract": "tsx --test tests/contract.test.ts tests/trash-contract.test.ts",
+    "test:backup": "node --import tsx tests/backup.test.ts && node --import tsx tests/backup-contract.test.ts",
+    "benchmark:backup": "node --import tsx scripts/benchmark-backup.ts"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.119.0",
+    "fflate": "0.8.3",
     "lucide-react": "^0.468.0",
     "next": "16.4.5",
     "react": "19.3.1",

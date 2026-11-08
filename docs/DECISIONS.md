@@ -1,5 +1,13 @@
 # Personal OS｜决策记录
 
+## 最新确认：备份默认规则与 BKP-01～03（2026-11-08）
+
+Owner 已确认完整范围、未加密手动 ZIP、不覆盖恢复合同和分阶段顺序；本轮推进导出与本地校验，不重复申请这些规则确认。DEC-017 已更新决定，DEC-018 记录 STORE 格式、Blob/Worker 与容量边界。新增只读 SQL 仅在隔离环境验证，远端未应用，见[实施交接](02-engineering/cloud-backup-export-implementation.md)。
+
+## 备份恢复评审入口（2026-11-08）
+
+O03 / D15 中回收站移入、查看与恢复已单独获批，见[回收站](02-engineering/recycle-bin.md)。云端备份及从文件恢复是不同范围：Owner 本轮授权规划，具体默认规则待确认。技术推荐记录于 [DEC-017](03-development/decisions.md)，产品可审阅的范围/冲突/加密方式见[方案第 8 节](02-engineering/cloud-backup-restore-v0.1.md)。不把历史删除待定项重新作为已批准回收站的阻塞。
+
 ## 当前实施状态：UX Sprint 01
 
 用户最新设计与“确认/继续”已授权界面和接入代码实施：五模块、领域多选、记录灵感标记、统一混合采集；Focus 关联/下一步可空，数量不受主卡限制。上述规则替代下文旧单选/单条 Focus 设计。

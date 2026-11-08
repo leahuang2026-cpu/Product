@@ -1171,3 +1171,20 @@ figcaption {
     animation: none !important;
   }
 }
+
+.backup-panel {
+  overflow-wrap: anywhere;
+}
+.backup-panel > * + * {
+  margin-top: 16px;
+}
+.backup-panel input[type="file"] {
+  max-width: 100%;
+  min-height: 44px;
+  padding: 8px;
+}
+.backup-summary {
+  background: var(--surface-subtle);
+  border-radius: 12px;
+  padding: 16px;
+}

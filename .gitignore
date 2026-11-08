@@ -11,3 +11,6 @@ coverage/
 .DS_Store
 .supabase-setup/
 .vercel/
+
+# Private user-generated backups must not be committed.
+personal-os-backup*.zip

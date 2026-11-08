@@ -1,5 +1,19 @@
 # Personal OS｜文档导航与维护规范
 
+## 最新交付：BKP-01～03 导出与校验
+
+2026-11-08：默认规则已获确认，代码与只读 SQL 增量已实现。先读[实施交接及远端安装步骤](02-engineering/cloud-backup-export-implementation.md)，再读[实际测试与未验证项](04-testing/cloud-backup-restore-acceptance.md)。没有远端 SQL 安装、源码推送或部署；下方规划入口保留演变记录，不表示仍要重新批准相同规则。
+
+## 当前规划入口：云端导出与备份恢复
+
+2026-11-08：Owner 要求先规划数据保障，再推进 AI。以下为待审核方案，不是已实现功能：
+
+- [工程方案、可复用内容与 BKP 开发顺序](02-engineering/cloud-backup-restore-v0.1.md)
+- [设置中的导出、校验与恢复流程](01-design/cloud-backup-restore-flow.md)
+- [BKP-A01～15 验收设计（全部未执行）](04-testing/cloud-backup-restore-acceptance.md)
+
+最新实际状态以 [PROJECT_STATUS](../PROJECT_STATUS.md) 顶部及[本人联验记录](04-testing/owner-cloud-verification.md)为准；下方旧阶段状态保留历史。
+
 ## 当前实施状态：UX Sprint 01
 
 用户最新设计与“确认/继续”已授权界面和接入代码实施：五模块、领域多选、记录灵感标记、统一混合采集；Focus 关联/下一步可空，数量不受主卡限制。上述规则替代下文旧单选/单条 Focus 设计。

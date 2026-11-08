@@ -1,5 +1,9 @@
 # Personal OS｜数据模型
 
+## 2026-11-08 新增：备份只读投影
+
+BKP-02 不新增数据表或修改已存原文/附件，只新增本人只读快照函数。备份 `records/entries/attachments` 与 manifest 是文件格式；保留 createdAt/deletedAt、sourceVersion、附件顺序及引用。运行时 owner/path/请求缓存不导出；复用原件不可变约束以校验 Storage 与快照一致性。恢复批次表尚未实现，不得把格式文档当迁移已执行。详见[实施交接](cloud-backup-export-implementation.md)。
+
 最新增量：Owner 已批准回收站，records/entries 增加 deleted_at 与 /api/trash 移入/恢复接口；不删除原文附件。数据、权限和兼容细节见[回收站说明](recycle-bin.md)，远端安装尚未确认。
 
 > 用途：区分当前浏览器对象、Prisma 目标模型与尚未建模的需求。
