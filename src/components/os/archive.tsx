@@ -2,9 +2,17 @@
 import { TrashAction, TrashLink } from "./trash";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useOS, useData } from "./context";
-import { Notice, Empty, DomainPicker, Tags, dateLabel, Dialog } from "./common";
+import {
+  Notice,
+  Empty,
+  DomainPicker,
+  Tags,
+  dateLabel,
+  Dialog,
+  GlobalDomains,
+} from "./common";
 import { Composer } from "./composer";
 import { request } from "@/lib/os/client";
 import {
@@ -148,6 +156,7 @@ export function RecordDetail({
         )}
       </div>
       <section className="metadata-editor">
+        <span className="eyebrow">CONTEXT / 我的说明</span>
         <label>
           补充说明
           <textarea
@@ -238,18 +247,25 @@ export function ArchiveView({ garden = false }: { garden?: boolean }) {
     setSelected(null);
     queueMicrotask(() => lastButton.current?.focus());
   }
+  function monthOf(record: RecordItem) {
+    return new Intl.DateTimeFormat("zh-CN", {
+      year: "numeric",
+      month: "long",
+      timeZone: "Asia/Shanghai",
+    }).format(new Date(record.createdAt));
+  }
   return (
     <>
       <div className="page-title">
         <div>
           <span className="eyebrow">
-            {garden ? "IDEA GARDEN" : "MEMORY · ARCHIVE"}
+            {garden ? "IDEA GARDEN / 灵感生长的地方" : "MEMORY / 过去的沉淀"}
           </span>
-          <h1>{garden ? "留一片地方，给灵感" : "过去，仍在与你对话"}</h1>
+          <h1>{garden ? "留一片地方，给灵感" : "值得留下的，都在这里。"}</h1>
           <p>
             {garden
               ? "不急着行动。这里是你主动留下的那些可能性。"
-              : "从记录里，找回当时的自己。"}
+              : "按录入时间浏览，找回原文、原图和当时的语境。"}
           </p>
         </div>
         <button className="button secondary" onClick={() => setComposer(true)}>
@@ -279,6 +295,7 @@ export function ArchiveView({ garden = false }: { garden?: boolean }) {
                 </button>
               )}
             </label>
+            <GlobalDomains />
             <label className="check-label">
               <input
                 type="checkbox"
@@ -331,33 +348,68 @@ export function ArchiveView({ garden = false }: { garden?: boolean }) {
             </Empty>
           ) : (
             <div className={garden ? "garden-grid" : "record-list"}>
-              {records.map((r) => (
-                <button
-                  className={`record-card ${garden ? "idea-note" : ""} ${selected?.id === r.id ? "selected" : ""}`}
-                  key={r.id}
-                  aria-pressed={selected?.id === r.id}
-                  onClick={(e) => {
-                    lastButton.current = e.currentTarget;
-                    setSelected(r);
-                  }}
-                >
-                  <div className="card-meta">
-                    <Tags values={r.domains} />
-                    {r.isIdea && <Sprout size={16} aria-label="灵感" />}
-                  </div>
-                  <h2>{titleOf(r)}</h2>
-                  <p>
-                    {r.originalText ||
-                      r.note ||
-                      `${r.attachments.length} 个原始附件`}
-                  </p>
-                  <small>
-                    {dateLabel(r.createdAt)}
-                    {r.attachments.length > 0 &&
-                      ` · ${r.attachments.length} 个附件`}
-                  </small>
-                </button>
-              ))}
+              {records.map((r, index) => {
+                const thumbnail = r.attachments.find(
+                  (a) =>
+                    a.mime.startsWith("image/") && safeImagePath(a.contentPath),
+                );
+                const preview =
+                  r.note ||
+                  r.originalText.split("\n").slice(1).join("\n").trim();
+                return (
+                  <Fragment key={r.id}>
+                    {(index === 0 ||
+                      monthOf(r) !== monthOf(records[index - 1])) && (
+                      <h2 className="month-divider">
+                        {monthOf(r)}
+                        <span>按录入时间 · 从新到旧</span>
+                      </h2>
+                    )}
+                    <button
+                      className={`record-card ${garden ? "idea-note" : ""} ${selected?.id === r.id ? "selected" : ""}`}
+                      key={r.id}
+                      aria-pressed={selected?.id === r.id}
+                      onClick={(e) => {
+                        lastButton.current = e.currentTarget;
+                        setSelected(r);
+                      }}
+                    >
+                      <div className="card-meta">
+                        <Tags values={r.domains} />
+                        {r.isIdea && <Sprout size={16} aria-label="灵感" />}
+                      </div>
+                      <h2>{titleOf(r)}</h2>
+                      {preview && <p>{preview}</p>}
+                      {thumbnail && (
+                        <div className="record-thumbnail">
+                          <Image
+                            unoptimized
+                            src={thumbnail.contentPath}
+                            width={480}
+                            height={240}
+                            alt={`${thumbnail.name} 缩略图`}
+                          />
+                        </div>
+                      )}
+                      <small>
+                        {dateLabel(r.createdAt)}
+                        {r.attachments.length > 0 &&
+                          ` · ${r.attachments.length} 个附件`}
+                      </small>
+                      <span className="record-type">
+                        {thumbnail
+                          ? "图片记录"
+                          : r.attachments.length
+                            ? "附件记录"
+                            : r.links.length
+                              ? "含链接的记录"
+                              : "文字记录"}
+                        <span aria-hidden="true"> →</span>
+                      </span>
+                    </button>
+                  </Fragment>
+                );
+              })}
             </div>
           )}
         </section>

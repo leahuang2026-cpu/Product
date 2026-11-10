@@ -14,7 +14,11 @@ export function OSWorkspace({ section, id }: { section: string; id?: string }) {
       return (
         <>
           <div className="page-title">
-            <h1>记录此刻</h1>
+            <div>
+              <span className="eyebrow">CAPTURE / 记录此刻</span>
+              <h1>先留下。</h1>
+              <p>一句话、一张图，都值得被保存。</p>
+            </div>
           </div>
           <Composer />
         </>

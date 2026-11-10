@@ -1,5 +1,9 @@
 # Personal OS｜任务清单
 
+## UI-REF-V1｜页面参考适配（2026-11-10）
+
+Owner 要求参考上传的页面设计修改 Personal OS 界面；已完成共享视觉、品牌/五模块导航、关注与采集布局、手机排版、档案月份与缩略图、原文/说明分区和状态反馈。最终 lint/build/typecheck、14 项单元和完整四宽度 68 项浏览器通过；新导航输入保护及过程见开发日志 DEV-022。Owner 随后要求“下一步”，当前交付到专用 preview/personal-os-supabase-test；真实数据/权限不改，Render 部署及视觉验收待反馈，推送与上线分开核实。[交付说明](01-design/ui-reference-v1-implementation.md)。
+
 ## 回收站（Owner 已批准，2026-11-08）
 
 Archive、Direction、Reflection 移入/恢复已实现，设置集中查看；不永久删除。增量 SQL/API/UI 隔离验证通过（14 单元、21 契约、第一轮 64 浏览器及补充 12 回收站复跑），实际 Supabase 更新与 Render 新版本、本人复验待完成。详见[实施与安装](02-engineering/recycle-bin.md)。Owner 已确认此前复盘周期修复后三项均正常；BUG-REF-001 用户复验通过。

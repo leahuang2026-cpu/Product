@@ -199,3 +199,37 @@ test("复盘新建跟随周月页签，切换周期保存后显示在对应列�
   await expect(cards).toHaveCount(1);
   await expect(cards).toContainText("虚构月度回望");
 });
+
+test("新品牌栏、最近记录和底部导航都保护未保存输入，最近记录遵循领域筛选", async ({
+  page,
+}) => {
+  await mockAPI(page);
+  await page.goto("/");
+  await page
+    .locator(".global-domains")
+    .getByRole("button", { name: "能力", exact: true })
+    .click();
+  await expect(page.locator(".memory-note h2")).toHaveText(
+    "学习数据库，让想法变成作品。",
+  );
+  const input = page.getByLabel("记录内容", { exact: true });
+  await input.fill("这是尚未保存的虚构记录。");
+  const nav = page.getByRole("navigation", {
+    name: page.viewportSize()!.width <= 960 ? "手机主导航" : "主导航",
+    exact: true,
+  });
+  for (const target of [
+    page.locator(".os-topbar").getByRole("link", { name: "隐私与设置" }),
+    page.getByRole("link", { name: /查看这条记录/ }),
+    nav.getByRole("link", { name: /档案/ }),
+  ]) {
+    page.once("dialog", (d) => d.dismiss());
+    await target.click();
+    await expect(input).toHaveValue("这是尚未保存的虚构记录。");
+    await expect(page).toHaveURL(/\/$/);
+  }
+  await input.fill("");
+  await nav.getByRole("link", { name: /档案/ }).click();
+  await expect(page).toHaveURL(/\/archive$/);
+  await expect(page.locator(".record-card")).toHaveCount(1);
+});

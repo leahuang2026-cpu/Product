@@ -212,6 +212,12 @@ test("数据库回收站未安装时显示真实错误，不隐藏原记录", as
   expect(api.records).toHaveLength(2);
   await page.goto("/settings#trash");
   await expect(page.getByText("回收站尚未接通，内容未移动。")).toBeVisible();
+  // Let the initial session/data requests finish before bringing the mock backend
+  // online; otherwise the initial reread can remove Retry before it is clicked.
+  await page.waitForLoadState("networkidle");
+  await expect(
+    page.locator("#trash").getByText("回收站尚未接通，内容未移动。"),
+  ).toBeVisible();
   api.trashUnavailable = false;
   await page
     .locator("#trash")

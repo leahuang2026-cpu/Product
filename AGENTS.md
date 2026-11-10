@@ -1,5 +1,7 @@
 # Personal OS｜长期协作规范
 
+2026-11-10 Owner 在页面参考改版与 68 项回归交付后回复“下一步”，本轮据此继续独立 test 入口的 UI 提交/推送与部署交接。唯一目标分支为 preview/personal-os-supabase-test，目标服务 https://product-os-test.onrender.com；保留原 preview/personal-os-login 的较新备份功能和 main，不强推、不改旧服务或数据库、不发布 Codex 环境。UI 已通过 lint/build/typecheck、14 项单元和四宽度 68 项浏览器。Render 控制台发布与真实登录验收仍需分别核实；不能把 Git 推送写成已上线。
+
 2026-11-08 Owner 已批准 Archive/Direction/Reflection 回收站方案及所需增量数据库/权限实现。范围仅移入/查看/恢复、保留原文附件及关联、有 Focus 引用的方向先手动解除关联。不执行永久删除、自动清理、旧数据迁移或自动改目标。增量脚本和安装见 [回收站说明](docs/02-engineering/recycle-bin.md)；无需重复申请该范围批准，远端执行结果必须实记。
 
 2026-11-07 最新部署决定：Owner 改选 Render，替代 Vercel；Vercel 设备登录已取消。复用新测试分支和标准 Docker/standalone，继续现有 Supabase。不改 main、不自动选择付费套餐、不改数据库或私有权限。当前配置与验收见 [Render 说明](docs/02-engineering/render-deployment.md)。

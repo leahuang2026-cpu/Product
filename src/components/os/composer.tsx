@@ -269,9 +269,15 @@ export function Composer({
   if (saved)
     return (
       <section className="capture-result">
-        <p className="success" role="status">
-          内容已保存，可稍后整理。
-        </p>
+        <div className="saved-heading">
+          <span className="eyebrow">✓ SAVED / 已保存</span>
+          <h2>已经留下了。</h2>
+          <p className="success" role="status">
+            内容已保存，可稍后整理。
+          </p>
+        </div>
+        <h3>为它补充一些线索？</h3>
+        <p className="subtle-note">领域可多选，也可以稍后再说。</p>
         <DomainPicker
           value={selected}
           onChange={setSelected}
@@ -329,7 +335,7 @@ export function Composer({
       </label>
       <textarea
         id="capture-text"
-        placeholder="此刻，想留下什么？"
+        placeholder="此刻有什么值得留下？写一句话，或添加一张图片…"
         value={text}
         maxLength={10000}
         disabled={busy || sealed}
@@ -409,6 +415,7 @@ export function Composer({
             onClick={() => fileInput.current?.click()}
           >
             <ImagePlus size={20} />
+            <span className="tool-label">图片</span>
           </button>
           <input
             ref={fileInput}

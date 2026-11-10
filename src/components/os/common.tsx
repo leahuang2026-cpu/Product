@@ -2,6 +2,15 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { X, RefreshCw } from "lucide-react";
 import { domains, type Domain } from "@/lib/os/model";
+import { useOS } from "./context";
+export function GlobalDomains() {
+  const { domains, setDomains } = useOS();
+  return (
+    <div className="global-domains">
+      <DomainPicker value={domains} onChange={setDomains} label="当前领域" />
+    </div>
+  );
+}
 export function DomainPicker({
   value,
   onChange,

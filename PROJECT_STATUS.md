@@ -1,5 +1,9 @@
 # Personal OS｜项目状态
 
+## 页面参考 V1.0 界面改版（2026-11-10）
+
+Owner 上传五张页面参考并要求据此修改界面。纸白/砖棕/鼠尾草配色、衬线标题、顶部品牌和底部五模块导航、关注/采集双栏、手机单栏、月份档案及原件/说明阅读区已实现；现有多选领域、可空关联、真实 API 和错误/回收站行为保留。最终 lint/build/typecheck、14 项单元及完整四宽度 68 项浏览器通过；过程及新导航输入保护回归见 DEV-022。Owner 随后要求“下一步”，当前通过专用 preview/personal-os-supabase-test 交付 UI；Git 结果和实际 Render 上线分别记录。数据规则/数据库未改，部署和用户视觉验收仍待确认。详见[实现与审阅](docs/01-design/ui-reference-v1-implementation.md)。
+
 ## 回收站（Owner 已批准，2026-11-08）
 
 Archive、Direction、Reflection 移入/恢复已实现，设置集中查看；不永久删除。增量 SQL/API/UI 隔离验证通过（14 单元、21 契约、第一轮 64 浏览器及补充 12 回收站复跑），实际 Supabase 更新与 Render 新版本、本人复验待完成。详见[实施与安装](docs/02-engineering/recycle-bin.md)。Owner 已确认此前复盘周期修复后三项均正常；BUG-REF-001 用户复验通过。

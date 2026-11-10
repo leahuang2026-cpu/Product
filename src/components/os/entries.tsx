@@ -2,7 +2,17 @@
 import { TrashAction, TrashLink } from "./trash";
 import { useRef, useState } from "react";
 import { useData, useOS } from "./context";
-import { Dialog, DomainPicker, Empty, Notice, Tags } from "./common";
+import {
+  Dialog,
+  DomainPicker,
+  Empty,
+  Notice,
+  Tags,
+  GlobalDomains,
+  dateLabel,
+} from "./common";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { request } from "@/lib/os/client";
 import {
   matchesDomains,
@@ -208,7 +218,8 @@ export function EntriesView({
   kind: Entry["kind"];
   home?: boolean;
 }) {
-  const { domains, reload } = useOS();
+  const { domains, reload, navigate } = useOS();
+  const router = useRouter();
   const { data, error, loading, retry } = useData<Entry[]>("/api/entries");
   const sources = useData<RecordItem[]>("/api/records");
   const [editing, setEditing] = useState<Entry | "new" | null>(null),
@@ -223,10 +234,15 @@ export function EntriesView({
   );
   const title =
     kind === "focus"
-      ? "把注意力，放回自己在意的事"
+      ? "把注意力，留给重要的事。"
       : kind === "direction"
         ? "未来，可以慢慢清晰"
         : "停下来，听听自己的想法";
+  const recent = sources.data
+    ?.filter((r) => matchesDomains(r.domains, domains))
+    .toSorted((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+  const recentContext =
+    recent?.note || recent?.originalText.split("\n").slice(1).join("\n");
   async function remove(entry: Entry) {
     if (!window.confirm("移出当前关注？相关记录和方向会保留。")) return;
     try {
@@ -242,19 +258,28 @@ export function EntriesView({
   }
   return (
     <>
-      <div className="page-title">
+      <div className={`page-title ${kind === "focus" ? "focus-title" : ""}`}>
         <div>
           <span className="eyebrow">
             {kind === "focus"
-              ? "FOCUS · 现在"
+              ? "FOCUS / 现在的关注"
               : kind === "direction"
                 ? "DIRECTION · 未来"
                 : "REFLECTION · 回望"}
           </span>
-          <h1>{title}</h1>
+          <h1>
+            {kind === "focus" ? (
+              <>
+                <span className="wide-title">{title}</span>
+                <span className="narrow-title">现在的关注</span>
+              </>
+            ) : (
+              title
+            )}
+          </h1>
           <p>
             {kind === "focus"
-              ? "不急着做更多。看见此刻，也记得为什么出发。"
+              ? "看清当下的重点，也记得为什么出发。"
               : kind === "direction"
                 ? "目标可以随人生变化，方向始终由你决定。"
                 : "这里没有评分，也不需要每次都得出下一步。"}
@@ -269,174 +294,250 @@ export function EntriesView({
               : "写复盘"}
         </button>
       </div>
-      {home && (
-        <section className="home-capture">
-          <h2>此刻，想留下什么？</h2>
-          <Composer />
-        </section>
-      )}
-      {kind === "reflection" && (
-        <div className="period-tabs">
-          <button
-            aria-pressed={period === "weekly"}
-            onClick={() => setPeriod("weekly")}
-          >
-            周度复盘
-          </button>
-          <button
-            aria-pressed={period === "monthly"}
-            onClick={() => setPeriod("monthly")}
-          >
-            月度复盘
-          </button>
-        </div>
-      )}
-      {kind !== "focus" && <TrashLink />}
-      {issue && <Notice error={issue} />}
-      <section className={`entries entries-${kind}`}>
-        {loading ? (
-          <p role="status">正在读取…</p>
-        ) : error ? (
-          <Notice error={error} onRetry={retry} />
-        ) : !items.length ? (
-          <Empty
-            title={
-              domains.length
-                ? "当前领域还没有匹配内容"
-                : kind === "focus"
-                  ? "给当下，留一个关注的位置"
-                  : kind === "direction"
-                    ? "方向可以从一句在意的话开始"
-                    : "第一次回望，从此刻开始"
-            }
-          />
-        ) : (
-          items.map((entry, i) => (
-            <article
-              key={entry.id}
-              className={`entry-card ${kind === "focus" && i === 0 ? "focus-primary" : ""}`}
-            >
-              <Tags values={entry.domains} />
-              <h2>{entry.title || entry.body.split("\n")[0].slice(0, 60)}</h2>
-              <p className="preserve-lines">{entry.body}</p>
-              {kind === "focus" && (
-                <>
-                  <div className="next-step">
-                    <span>下一步</span>
-                    <p>{entry.next || "还没有填写，慢慢来。"}</p>
+      <GlobalDomains />
+      <div className={home ? "focus-layout" : "entry-layout"}>
+        <section className="entry-collection">
+          {home && (
+            <div className="section-heading">
+              <h2>当前重点</h2>
+              <span>由你手动维护</span>
+              <button
+                className="button quiet mobile-add-focus"
+                aria-label="添加关注"
+                onClick={() => setEditing("new")}
+              >
+                <Plus size={15} />
+                添加关注
+              </button>
+            </div>
+          )}
+          {kind === "reflection" && (
+            <div className="period-tabs">
+              <button
+                aria-pressed={period === "weekly"}
+                onClick={() => setPeriod("weekly")}
+              >
+                周度复盘
+              </button>
+              <button
+                aria-pressed={period === "monthly"}
+                onClick={() => setPeriod("monthly")}
+              >
+                月度复盘
+              </button>
+            </div>
+          )}
+          {kind !== "focus" && <TrashLink />}
+          {issue && <Notice error={issue} />}
+          <section className={`entries entries-${kind}`}>
+            {loading ? (
+              <p role="status">正在读取…</p>
+            ) : error ? (
+              <Notice error={error} onRetry={retry} />
+            ) : !items.length ? (
+              <Empty
+                title={
+                  domains.length
+                    ? "当前领域还没有匹配内容"
+                    : kind === "focus"
+                      ? "给当下，留一个关注的位置"
+                      : kind === "direction"
+                        ? "方向可以从一句在意的话开始"
+                        : "第一次回望，从此刻开始"
+                }
+              />
+            ) : (
+              items.map((entry, i) => (
+                <article
+                  key={entry.id}
+                  className={`entry-card ${kind === "focus" && i === 0 ? "focus-primary" : ""}`}
+                >
+                  <div className="entry-meta">
+                    {kind === "focus" && (
+                      <span className="relation-badge">
+                        {entry.relationId
+                          ? `方向 · ${data?.find((e) => e.id === entry.relationId)?.title || "已关联方向"}`
+                          : "关联方向：暂未关联"}
+                      </span>
+                    )}
+                    <Tags values={entry.domains} />
+                    {kind === "focus" && (
+                      <button
+                        className="button quiet entry-edit"
+                        onClick={() => setEditing(entry)}
+                      >
+                        编辑
+                        <ArrowUpRight size={13} />
+                      </button>
+                    )}
                   </div>
-                  <p className="related-context">
-                    关联方向：
-                    {data?.find((e) => e.id === entry.relationId)?.title ||
-                      "暂未关联"}
-                  </p>
+                  <h2>
+                    {entry.title || entry.body.split("\n")[0].slice(0, 60)}
+                  </h2>
+                  <p className="preserve-lines">{entry.body}</p>
+                  {kind === "focus" && (
+                    <>
+                      <div className="next-step">
+                        <span>下一步</span>
+                        <p>{entry.next || "还没有填写，慢慢来。"}</p>
+                      </div>
+                    </>
+                  )}
+                  {entry.sourceIds.length > 0 && (
+                    <div className="source-links">
+                      <h3>来源记录</h3>
+                      {entry.sourceIds.map((id, n) =>
+                        sources.data?.some((r) => r.id === id) ? (
+                          <a href={`/archive/${id}`} key={id}>
+                            查看来源 {n + 1}
+                            <ArrowUpRight size={14} />
+                          </a>
+                        ) : (
+                          <p className="subtle-note" key={id}>
+                            {sources.loading
+                              ? "正在读取来源…"
+                              : `来源 ${n + 1} 已移入回收站或暂不可用；引用关系保留。`}
+                          </p>
+                        ),
+                      )}
+                    </div>
+                  )}
+                  {kind === "direction" && (
+                    <p className="related-context">
+                      {
+                        (data || []).filter(
+                          (e) =>
+                            e.kind === "focus" &&
+                            e.active &&
+                            e.relationId === entry.id,
+                        ).length
+                      }{" "}
+                      项当前关注引用此方向
+                    </p>
+                  )}
+                  {kind === "direction" &&
+                    (data || [])
+                      .filter(
+                        (e) => e.kind === "focus" && e.relationId === entry.id,
+                      )
+                      .map((focus) => (
+                        <button
+                          key={focus.id}
+                          className="button quiet"
+                          onClick={() => setEditing(focus)}
+                        >
+                          编辑关联关注：{focus.title || focus.body.slice(0, 30)}
+                          {focus.active ? "" : "（已移出当前关注）"}
+                        </button>
+                      ))}
+                  <div className="button-row">
+                    {kind !== "focus" && (
+                      <button
+                        className="button quiet"
+                        onClick={() => setEditing(entry)}
+                      >
+                        编辑
+                      </button>
+                    )}
+                    {kind !== "focus" && (
+                      <TrashAction
+                        id={entry.id}
+                        kind={kind}
+                        version={entry.version}
+                      />
+                    )}
+                    {kind === "focus" && (
+                      <button
+                        className="button quiet"
+                        onClick={() => void remove(entry)}
+                      >
+                        移出当前关注
+                      </button>
+                    )}
+                    {kind === "direction" && (
+                      <button
+                        className="button quiet"
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              "以这个方向建立当前阶段关注？你可以在表单中调整本阶段范围。",
+                            )
+                          )
+                            setEditing({
+                              id: crypto.randomUUID(),
+                              kind: "focus",
+                              title: entry.title,
+                              body: "",
+                              domains: entry.domains,
+                              next: "",
+                              relationId: entry.id,
+                              sourceIds: [],
+                              active: true,
+                              version: 0,
+                            });
+                        }}
+                      >
+                        加入当前关注
+                      </button>
+                    )}
+                  </div>
+                </article>
+              ))
+            )}
+          </section>
+          {kind === "reflection" && (
+            <p className="subtle-note">
+              先用自己的话回望。AI 整理尚未启用，材料不会自动发送。
+            </p>
+          )}
+        </section>
+        {home && (
+          <aside className="home-aside">
+            <section className="home-capture">
+              <span className="eyebrow">CAPTURE / 快速记录</span>
+              <h2>先留下，再整理。</h2>
+              <Composer />
+            </section>
+            <section className="memory-note" aria-label="最近留下的记录">
+              <span className="eyebrow">MEMORY / 最近留下</span>
+              {sources.loading ? (
+                <p>正在读取最近记录…</p>
+              ) : sources.error ? (
+                <>
+                  <p>最近记录暂时无法读取。</p>
+                  <button className="button quiet" onClick={sources.retry}>
+                    重试读取记录
+                  </button>
+                </>
+              ) : recent ? (
+                <>
+                  <h2>{titleOf(recent)}</h2>
+                  {recentContext && <p>{recentContext.slice(0, 120)}</p>}
+                  <div className="memory-meta">
+                    <span>{dateLabel(recent.createdAt)}</span>
+                    <Link
+                      href={`/archive/${recent.id}`}
+                      onClick={(e) => {
+                        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+                          return;
+                        e.preventDefault();
+                        navigate(() => router.push(`/archive/${recent.id}`));
+                      }}
+                    >
+                      查看这条记录 <ArrowUpRight size={13} />
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h2>给未来的自己，留一点线索。</h2>
+                  <p>一句话、一张图，都可以是开始。</p>
                 </>
               )}
-              {entry.sourceIds.length > 0 && (
-                <div className="source-links">
-                  <h3>来源记录</h3>
-                  {entry.sourceIds.map((id, n) =>
-                    sources.data?.some((r) => r.id === id) ? (
-                      <a href={`/archive/${id}`} key={id}>
-                        查看来源 {n + 1}
-                        <ArrowUpRight size={14} />
-                      </a>
-                    ) : (
-                      <p className="subtle-note" key={id}>
-                        {sources.loading
-                          ? "正在读取来源…"
-                          : `来源 ${n + 1} 已移入回收站或暂不可用；引用关系保留。`}
-                      </p>
-                    ),
-                  )}
-                </div>
-              )}
-              {kind === "direction" && (
-                <p className="related-context">
-                  {
-                    (data || []).filter(
-                      (e) =>
-                        e.kind === "focus" &&
-                        e.active &&
-                        e.relationId === entry.id,
-                    ).length
-                  }{" "}
-                  项当前关注引用此方向
-                </p>
-              )}
-              {kind === "direction" &&
-                (data || [])
-                  .filter(
-                    (e) => e.kind === "focus" && e.relationId === entry.id,
-                  )
-                  .map((focus) => (
-                    <button
-                      key={focus.id}
-                      className="button quiet"
-                      onClick={() => setEditing(focus)}
-                    >
-                      编辑关联关注：{focus.title || focus.body.slice(0, 30)}
-                      {focus.active ? "" : "（已移出当前关注）"}
-                    </button>
-                  ))}
-              <div className="button-row">
-                <button
-                  className="button quiet"
-                  onClick={() => setEditing(entry)}
-                >
-                  编辑
-                </button>
-                {kind !== "focus" && (
-                  <TrashAction
-                    id={entry.id}
-                    kind={kind}
-                    version={entry.version}
-                  />
-                )}
-                {kind === "focus" && (
-                  <button
-                    className="button quiet"
-                    onClick={() => void remove(entry)}
-                  >
-                    移出当前关注
-                  </button>
-                )}
-                {kind === "direction" && (
-                  <button
-                    className="button quiet"
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          "以这个方向建立当前阶段关注？你可以在表单中调整本阶段范围。",
-                        )
-                      )
-                        setEditing({
-                          id: crypto.randomUUID(),
-                          kind: "focus",
-                          title: entry.title,
-                          body: "",
-                          domains: entry.domains,
-                          next: "",
-                          relationId: entry.id,
-                          sourceIds: [],
-                          active: true,
-                          version: 0,
-                        });
-                    }}
-                  >
-                    加入当前关注
-                  </button>
-                )}
-              </div>
-            </article>
-          ))
+            </section>
+          </aside>
         )}
-      </section>
-      {kind === "reflection" && (
-        <p className="subtle-note">
-          先用自己的话回望。AI 整理尚未启用，材料不会自动发送。
-        </p>
-      )}
+      </div>
       {editing && (
         <EntryEditor
           kind={editing === "new" ? kind : editing.kind}
